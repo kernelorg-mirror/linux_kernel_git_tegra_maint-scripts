@@ -1,0 +1,7 @@
+branches=""
+branches="${branches} for-3.13/deps-for-arm-init-time-cleanup" # On v3.12-rc1
+branches="${branches} for-3.13/cleanup" # On for-3.13/deps-for-arm-init-time-cleanup
+branches="${branches} for-3.13/soc" # On for-3.13/cleanup
+branches="${branches} for-3.13/dt" # On v3.12-rc1
+branches="${branches} for-3.13/defconfig" # On v3.12-rc1
+branches="${branches} for-3.13/maintainers" # On v3.12-rc1
