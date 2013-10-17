@@ -3,19 +3,6 @@
 BASE=$1
 TIP=$2
 
-case "${TIP}" in
-tegra*)
-    REPO=tegra
-    ;;
-bcm2835*)
-    REPO=rpi
-    ;;
-*)
-    echo Cannot determine which repo to pull from
-    exit 1
-    ;;
-esac
-
 BASE_SHA=$(git log --pretty=oneline -1 ${BASE} | cut -d' ' -f 1)
 BASE_DESC=$(git log --pretty=oneline -1 ${BASE} | cut -d' ' -f 1 --complement)
 
@@ -43,7 +30,7 @@ echo "  $BASE_DESC"
 echo
 echo "are available in the git repository at:"
 echo
-echo "  git://git.kernel.org/pub/scm/linux/kernel/git/swarren/linux-${REPO}.git $TIP"
+echo "  git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git $TIP"
 echo
 
 echo "for you to fetch changes up to $TIP_SHA:"
