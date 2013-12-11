@@ -7,7 +7,7 @@ set -x
 
 if [ "$1" != "--no-reset" ]; then
   git checkout for-next
-  git reset --hard v3.13-rc1
+  git reset --hard v3.13-rc3
 fi
 
 for b in ${branches}; do
