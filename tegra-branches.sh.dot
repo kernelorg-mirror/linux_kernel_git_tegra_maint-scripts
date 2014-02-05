@@ -1,11 +1,4 @@
 branches=""
-branches="${branches} for-3.14/deps-from-dma-defer_probe" # On v3.13-rc1
-branches="${branches} for-3.14/deps-from-asoc-dma" # (asoc-dma-v3.14) On v3.13-rc1, includes deps-from-dma-defer_probe
-branches="${branches} for-3.14/deps-from-dma-of" # On v3.13-rc1
-branches="${branches} for-3.14/deps-from-clk-tegra" # (clk-tegra-for-3.14) On v3.13-rc1
-branches="${branches} for-3.14/trusted-foundations" # On v3.13-rc1
-branches="${branches} for-3.14/dmas-resets-rework" # On v3.13-rc3, includes deps-from-*
-branches="${branches} for-3.14/powergate" # On for-3.14/dmas-resets-rework
-branches="${branches} for-3.14/soc" # On v3.13-rc1
-branches="${branches} for-3.14/dt" # On for-3.14/dmas-resets-rework
-branches="${branches} for-3.14/defconfig" # On v3.13-rc1
+branches="${branches} for-3.15/drivers" # On v3.14-rc1
+branches="${branches} for-3.15/dt" # On v3.14-rc1
+branches="${branches} for-3.15/defconfig" # On v3.14-rc1
