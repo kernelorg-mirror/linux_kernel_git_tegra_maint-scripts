@@ -1,4 +1,4 @@
+merge_base=v3.15-rc1
+
 branches=""
-branches="${branches} for-3.15/drivers" # On v3.14-rc1
-branches="${branches} for-3.15/dt" # On v3.14-rc1
-branches="${branches} for-3.15/defconfig" # On v3.14-rc1
+#branches="${branches} for-3.16/dt" # On v3.15-rc1

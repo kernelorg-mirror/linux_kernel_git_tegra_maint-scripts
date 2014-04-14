@@ -7,7 +7,7 @@ set -x
 
 if [ "$1" != "--no-reset" ]; then
   git checkout for-next
-  git reset --hard v3.14-rc1
+  git reset --hard ${merge_base}
 fi
 
 for b in ${branches}; do
