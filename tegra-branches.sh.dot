@@ -1,5 +1,6 @@
 merge_base=v3.15-rc1
 
 branches=""
+branches="${branches} for-3.16/soc" # On v3.15-rc1
 branches="${branches} for-3.16/dt" # On v3.15-rc1
 branches="${branches} for-3.16/defconfig" # On v3.15-rc1
