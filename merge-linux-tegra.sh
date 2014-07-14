@@ -3,7 +3,7 @@
 set -e
 set -x
 
-. `dirname $0`/tegra-branches.sh.dot
+. "${0%/*}/tegra-branches.sh.dot"
 
 if [ "$1" != "--no-reset" ]; then
   git checkout for-next
