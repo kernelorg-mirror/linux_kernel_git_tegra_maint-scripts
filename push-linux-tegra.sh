@@ -9,5 +9,7 @@ set -x
 remote=$(get_remote)
 
 for b in ${branches} for-next; do
-    git push --force ${remote} ${b}:${b}
+    refspecs="${refspecs} ${b}:${b}"
 done
+
+git push --force ${remote} ${refspecs}
