@@ -4,8 +4,9 @@ set -e
 set -x
 
 . "${0%/*}/tegra-branches.sh.dot"
+. "${0%/*}/lib.sh"
 
-remote=`git remote -v|grep ra.kernel.org:/pub/scm/linux/kernel/git/tegra/linux|head -n 1|awk '{print $1}'`
+remote=$(get_remote)
 
 for b in ${branches} for-next; do
     git push --force ${remote} ${b}:${b}
