@@ -1,11 +1,3 @@
-merge_base=v3.16-rc1
+merge_base=v3.16-rc6
 
 branches=""
-branches="${branches} for-3.17/dt-cros-ec-kbd" # On v3.16-rc1
-branches="${branches} for-3.17/pcie-regulators" # On v3.16-rc1
-branches="${branches} for-3.17/fuse-move" # On v3.16-rc1
-branches="${branches} for-3.17/delay-timer" # On v3.16-rc1
-branches="${branches} for-3.17/xusb-padctl" # On v3.16-rc1
-branches="${branches} for-3.17/soc" # On for-3.17/fuse-move
-branches="${branches} for-3.17/dt" # On for-3.17/fuse-move, for-3.17/dt-cros-ec-kbd, for-3.17/xusb-padctl
-branches="${branches} for-3.17/defconfig" # On v3.16-rc1
