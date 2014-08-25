@@ -1,3 +1,4 @@
-merge_base=v3.16-rc6
+merge_base=v3.17-rc1
 
-branches=""
+branches="${branches} for-3.18/dt" # on v3.17-rc1
+branches="${branches} for-3.18/defconfig" # on v3.17-rc1
