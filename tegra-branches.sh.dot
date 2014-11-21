@@ -1,4 +1,6 @@
 merge_base=v3.18-rc1
 
-branches="${branches} for-3.19/dt" # on v3.18-rc1
+branches="${branches} for-3.19/iommu" # on v3.18-rc1
+branches="${branches} for-3.19/dt" # on for-3.19/iommu
 branches="${branches} for-3.19/defconfig" # on v3.18-rc1
+branches="${branches} for-3.19/soc" # on v3.18-rc1
