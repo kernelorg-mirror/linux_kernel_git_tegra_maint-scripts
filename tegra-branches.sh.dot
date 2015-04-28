@@ -1,6 +1,4 @@
-merge_base=v3.19-rc1
+merge_base=v4.0-rc1
 
-branches="${branches} for-3.20/dt" # on v3.19-rc1
-branches="${branches} for-3.20/defconfig" # on v3.19-rc1
-branches="${branches} for-3.20/soc" # on v3.19-rc1
-branches="${branches} for-3.20/arm64" # on for-3.20/soc
+branches="${branches} for-4.1/soc" # on v4.0-rc1
+branches="${branches} for-4.1/dt" # on v4.0-rc1
