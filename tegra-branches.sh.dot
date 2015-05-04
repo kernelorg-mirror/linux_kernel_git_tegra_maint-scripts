@@ -1,3 +1,9 @@
 merge_base=v4.1-rc1
 
+branches="${branches} for-4.2/cleanup" # on v4.1-rc1
+branches="${branches} for-4.2/memory" # on v4.1-rc1
+branches="${branches} for-4.2/ramcode" # on v4.1-rc1
+branches="${branches} for-4.2/clk" # on for-4.2/ramcode
+branches="${branches} for-4.2/emc" # on for-4.2/ramcode
+branches="${branches} for-4.2/soc" # on v4.1-rc1
 branches="${branches} for-4.2/dt" # on v4.1-rc1
