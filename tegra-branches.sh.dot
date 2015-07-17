@@ -1,14 +1,10 @@
-merge_base=v4.1-rc1
+merge_base=v4.2-rc1
 
-branches="${branches} for-4.2/cleanup" # on v4.1-rc1
-branches="${branches} for-4.2/memory" # on v4.1-rc1
-branches="${branches} for-4.2/ramcode" # on v4.1-rc1
-branches="${branches} for-4.2/clk" # on for-4.2/ramcode
-branches="${branches} for-4.2/emc" # on for-4.2/ramcode
-branches="${branches} for-4.2/soc" # on v4.1-rc1
-branches="${branches} for-4.2/dt" # on v4.1-rc1
-branches="${branches} for-4.2/defconfig" # on v4.1-rc1
+branches="${branches} for-4.3/clk" # on v4.2-rc1
 
-branches="${branches} for-4.2/pmc" # on v4.1-rc1
-branches="${branches} for-4.2/fuse" # on for-4.2/ramcode, for-4.2/soc
-branches="${branches} for-4.2/cpufreq" # on v4.1-rc1
+branches="${branches} for-4.3/cleanup" # on v4.2-rc1
+branches="${branches} for-4.3/soc" # on v4.2-rc1
+branches="${branches} for-4.3/cpufreq" # on v4.2-rc1
+branches="${branches} for-4.3/memory" # on v4.2-rc1
+branches="${branches} for-4.3/dt" # on v4.2-rc1
+branches="${branches} for-4.3/defconfig" # on v4.2-rc1
