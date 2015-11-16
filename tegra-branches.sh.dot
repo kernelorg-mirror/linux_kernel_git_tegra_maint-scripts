@@ -1,7 +1,5 @@
-merge_base=v4.3-rc1
+merge_base=v4.4-rc1
 
-branches="${branches} for-4.4/clk" # on v4.3-rc1
-
-branches="${branches} for-4.4/soc" # on v4.3-rc1
-branches="${branches} for-4.4/dt" # on v4.3-rc1
-branches="${branches} for-4.4/defconfig" # on v4.3-rc1
+branches="${branches} for-4.5/clk" # on v4.4-rc1
+branches="${branches} for-4.5/soc" # on v4.4-rc1
+branches="${branches} for-4.5/dt" # on for-4.5/clk, for-4.5/soc
