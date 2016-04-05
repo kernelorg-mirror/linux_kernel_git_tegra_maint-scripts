@@ -1,8 +1,8 @@
-merge_base=v4.4-rc1
+merge_base=v4.5-rc1
 
-branches="${branches} for-4.5/clk" # on v4.4-rc1
-branches="${branches} for-4.5/memory" # on v4.4-rc1
+#branches="${branches} for-4.5/clk-fixes" # on v4.5-rc1
 
-branches="${branches} for-4.5/soc" # on v4.4-rc1
-branches="${branches} for-4.5/dt" # on for-4.5/clk, for-4.5/soc
-branches="${branches} for-4.5/defconfig" # on v4.4-rc1
+branches="${branches} for-4.6/soc" # on v4.5-rc1
+
+branches="${branches} for-4.6/arm" # on v4.5-rc1
+branches="${branches} for-4.6/arm64" # on v4.5-rc1
