@@ -1,8 +1,5 @@
-merge_base=v4.5-rc1
+merge_base=v4.6-rc1
 
-#branches="${branches} for-4.5/clk-fixes" # on v4.5-rc1
-
-branches="${branches} for-4.6/soc" # on v4.5-rc1
-
-branches="${branches} for-4.6/arm" # on v4.5-rc1
-branches="${branches} for-4.6/arm64" # on v4.5-rc1
+branches="${branches} for-4.7/soc" # on v4.6-rc1
+branches="${branches} for-4.7/arm" # on v4.6-rc1
+branches="${branches} for-4.7/arm64" # on v4.6-rc1
