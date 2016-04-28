@@ -9,6 +9,6 @@ branches="${branches} for-4.7/arm64" # on v4.6-rc1
 branches="${branches} for-4.7/phy" # on for-4.7/clk
 branches="${branches} for-4.7/pci" # on for-4.7/phy
 branches="${branches} for-4.7/xhci" # on for-4.7/phy
-branches="${branches} for-4.7/xusb" # on for-4.7/xhci
+branches="${branches} for-4.7/xusb" # on for-4.7/phy, for-4.7/pci, for-4.7/xhci
 
 branches="${branches} for-4.7/genpd" # on for-4.7/soc
