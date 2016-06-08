@@ -14,3 +14,4 @@ branches="${branches} for-4.7/xusb" # on for-4.7/phy, for-4.7/pci, for-4.7/xhci
 branches="${branches} for-4.7/genpd" # on for-4.7/soc
 branches="${branches} for-4.7/gpio" # on v4.6-rc1
 branches="${branches} for-4.7/gm20b" # on v4.6-rc1
+branches="${branches} for-4.7/defconfig" # on v4.6-rc1
