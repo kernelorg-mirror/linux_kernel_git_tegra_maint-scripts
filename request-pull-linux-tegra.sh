@@ -35,11 +35,11 @@ cc="$cc, linux-arm-kernel@lists.infradead.org"
 index=1
 count=0
 
-for branch in ${branches}; do
+for branch in ${arm_soc}; do
 	count=$[count + 1]
 done
 
-for branch in ${branches}; do
+for branch in ${arm_soc}; do
 	tag=tegra-${branch/\//-}
 	release=${branch%%/*}
 
