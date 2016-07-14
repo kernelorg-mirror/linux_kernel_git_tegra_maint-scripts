@@ -11,6 +11,7 @@ branches="${branches} for-4.8/soc" # on v4.7-rc1
 
 arm_soc="${arm_soc} for-4.8/arm/soc" # on v4.7-rc1
 arm_soc="${arm_soc} for-4.8/arm/dt" # on v4.7-rc1
+arm_soc="${arm_soc} for-4.8/gm20b" # on v4.7-rc1
 arm_soc="${arm_soc} for-4.8/arm64/dt" # on v4.7-rc1
 arm_soc="${arm_soc} for-4.8/arm64/defconfig" # on v4.7-rc1
 
