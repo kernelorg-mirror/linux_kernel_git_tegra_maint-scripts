@@ -6,6 +6,35 @@ set -x
 . "${0%/*}/tegra-branches.sh.dot"
 . "${0%/*}/lib.sh"
 
+prefix=
+
+usage()
+{
+	echo "usage: $1 [options]"
+	echo ""
+	echo "options:"
+	echo "  -v, --reroll-count <n>    mark set of pull requests as the <n>-th iteration"
+}
+
+while test $# -gt 0; do
+	case $1 in
+		--reroll-count | -v)
+			if test -n "$2"; then
+				prefix=v${2}-
+				shift 2
+			else
+				usage $0
+				exit 1
+			fi
+			;;
+
+		*)
+			usage $0
+			exit 1
+			;;
+	esac
+done
+
 git_tag_get_subject()
 {
 	local blank=no
@@ -48,7 +77,7 @@ for branch in ${arm_soc}; do
 		mkdir -p "pull-request/$release"
 	fi
 
-	message=$(printf "pull-request/$release/%04u-$tag" $index)
+	message=$(printf "pull-request/$release/$prefix%04u-$tag" $index)
 	name=$(git config --get user.name)
 	email=$(git config --get user.email)
 	date=$(date -R)
