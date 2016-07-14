@@ -55,7 +55,7 @@ fi
 
 if test "x$opt_tags" = "xyes"; then
 	for b in ${branches}; do
-		t=tegra-${b/\//-}
+		t=tegra-${b//\//-}
 		refspecs="${refspecs} ${t}:${t}"
 	done
 fi

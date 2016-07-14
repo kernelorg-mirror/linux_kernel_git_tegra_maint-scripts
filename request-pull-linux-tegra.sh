@@ -41,7 +41,7 @@ for branch in ${arm_soc}; do
 done
 
 for branch in ${arm_soc}; do
-	tag=tegra-${branch/\//-}
+	tag=tegra-${branch//\//-}
 	release=${branch%%/*}
 
 	if ! test -d "pull-request/$release"; then
