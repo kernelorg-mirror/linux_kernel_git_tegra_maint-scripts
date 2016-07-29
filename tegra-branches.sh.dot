@@ -2,7 +2,6 @@ merge_base=v4.7-rc1
 
 branches="${branches} for-4.8/clk" # on v4.7-rc1
 branches="${branches} for-4.8/i2c" # on v4.7-rc1
-branches="${branches} for-4.8/pci" # on v4.7-rc1
 
 branches="${branches} for-4.8/bus" # on v4.7-rc1
 branches="${branches} for-4.8/dt-bindings" # on v4.7-rc1
