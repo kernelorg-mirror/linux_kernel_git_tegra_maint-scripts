@@ -1,17 +1,10 @@
-merge_base=v4.7-rc1
+merge_base=v4.8-rc1
 
-branches="${branches} for-4.8/clk" # on v4.7-rc1
-branches="${branches} for-4.8/i2c" # on v4.7-rc1
+branches="${branches} for-4.9/clk" # on v4.8-rc1
 
-branches="${branches} for-4.8/bus" # on v4.7-rc1
-branches="${branches} for-4.8/dt-bindings" # on v4.7-rc1
-branches="${branches} for-4.8/memory" # on v4.7-rc1
-branches="${branches} for-4.8/soc" # on v4.7-rc1
-
-arm_soc="${arm_soc} for-4.8/arm/soc" # on v4.7-rc1
-arm_soc="${arm_soc} for-4.8/arm/dt" # on v4.7-rc1
-arm_soc="${arm_soc} for-4.8/gm20b" # on v4.7-rc1
-arm_soc="${arm_soc} for-4.8/arm64/dt" # on v4.7-rc1
-arm_soc="${arm_soc} for-4.8/arm64/defconfig" # on v4.7-rc1
+arm_soc="${arm_soc} for-4.9/bus" # on v4.8-rc1
+arm_soc="${arm_soc} for-4.9/soc" # on v4.8-rc1
+arm_soc="${arm_soc} for-4.9/arm/dt" # on v4.8-rc1
+arm_soc="${arm_soc} for-4.9/arm64/dt" # on v4.8-rc1
 
 branches="${branches} ${arm_soc}"
