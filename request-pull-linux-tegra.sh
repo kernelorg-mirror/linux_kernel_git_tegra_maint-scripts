@@ -90,6 +90,11 @@ for branch in ${arm_soc}; do
 		from=$(git config --get sendemail.from)
 	fi
 
+	if test -f "$message"; then
+		echo "ERROR: file $message already exists"
+		exit 1
+	fi
+
 	exec 3> "$message"
 
 	echo "From $email $date" >&3
