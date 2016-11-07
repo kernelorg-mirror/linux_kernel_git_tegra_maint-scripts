@@ -12,6 +12,11 @@ opt_tags=no
 
 while test $# -gt 0; do
 	case $1 in
+		--arm-soc)
+			branches="$arm_soc"
+			shift
+			;;
+
 		-n | --dry-run)
 			opt_dry_run=yes
 			shift
@@ -32,6 +37,7 @@ while test $# -gt 0; do
 			echo "usage: $0 [options]"
 			echo ""
 			echo "options:"
+			echo "  --arm-soc          operate on ARM-SoC branches only"
 			echo "  -n, --dry-run      pretend to push"
 			echo "  -t, --tags         push tags"
 			echo "  -T, --tags-only    push tags only"
