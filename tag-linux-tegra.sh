@@ -25,5 +25,10 @@ done
 for branch in ${branches}; do
 	tag=tegra-${branch//\//-}
 
+	if git rev-parse --quiet --verify $tag > /dev/null; then
+		echo "tag $tag already exists, skipping"
+		continue
+	fi
+
 	git tag -s $tag $branch
 done
