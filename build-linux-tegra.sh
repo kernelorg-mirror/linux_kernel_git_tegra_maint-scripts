@@ -12,6 +12,9 @@ function usage()
 	echo ""
 	echo "options:"
 	echo "  -i, --incremental    build all branches incrementally"
+	echo "  -j, --jobs JOBS      number of parallel jobs to run"
+	echo "  -n, --dry-run        display what would be done"
+	echo "  -o, --output DIR     set build output directory"
 }
 
 outputdir=build/tegra
