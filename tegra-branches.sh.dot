@@ -1,17 +1,11 @@
-merge_base=v4.9-rc1
+merge_base=v4.10-rc2
 
-arm_soc="${arm_soc} for-4.10/mailbox" # on for-4.10/soc
-arm_soc="${arm_soc} for-4.10/firmware" # on for-4.10/mailbox
-arm_soc="${arm_soc} for-4.10/reset" # on for-4.10/firmware
-arm_soc="${arm_soc} for-4.10/bus" # on v4.9-rc1
-arm_soc="${arm_soc} for-4.10/soc" # on v4.9-rc1
-arm_soc="${arm_soc} for-4.10/dt-bindings" # on v4.9-rc1
-arm_soc="${arm_soc} for-4.10/arm/dt" # on v4.9-rc1
-arm_soc="${arm_soc} for-4.10/arm/defconfig" # on v4.9-rc1
-arm_soc="${arm_soc} for-4.10/arm64/dt" # on for-4.10/firmware
-arm_soc="${arm_soc} for-4.10/arm64/defconfig" # on v4.9-rc1
+arm_soc="${arm_soc} for-4.11/memory" # on v4.10-rc2
+arm_soc="${arm_soc} for-4.11/soc" # on v4.10-rc2
+arm_soc="${arm_soc} for-4.11/arm/dt" # on v4.10-rc2
+arm_soc="${arm_soc} for-4.11/arm64/dt" # on v4.10-rc2
 
-branches="${branches} for-4.10/clk" # on for-4.10/firmware
-branches="${branches} for-4.10/i2c" # on for-4.10/firmware
+branches="${branches} for-4.11/clk" # on v4.10-rc2
+branches="${branches} for-4.11/i2c" # on v4.10-rc2
 
 branches="${arm_soc} ${branches}"
