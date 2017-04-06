@@ -55,9 +55,7 @@ repository=git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git
 remote=$(get_remote)
 
 to="arm@kernel.org"
-cc="Stephen Warren <swarren@wwwdotorg.org>"
-cc="$cc, Thierry Reding <thierry.reding@gmail.com>"
-cc="$cc, Alexandre Courbot <gnurou@gmail.com>"
+cc="Thierry Reding <thierry.reding@gmail.com>"
 cc="$cc, Jon Hunter <jonathanh@nvidia.com>"
 cc="$cc, linux-tegra@vger.kernel.org"
 cc="$cc, linux-arm-kernel@lists.infradead.org"
