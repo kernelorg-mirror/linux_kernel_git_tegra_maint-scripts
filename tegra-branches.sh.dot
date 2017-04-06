@@ -1,11 +1,10 @@
-merge_base=v4.10-rc2
+merge_base=v4.11-rc1
 
-arm_soc="${arm_soc} for-4.11/memory" # on v4.10-rc2
-arm_soc="${arm_soc} for-4.11/soc" # on v4.10-rc2
-arm_soc="${arm_soc} for-4.11/arm/dt" # on v4.10-rc2
-arm_soc="${arm_soc} for-4.11/arm64/dt" # on v4.10-rc2
+arm_soc="${arm_soc} for-4.12/dt-bindings" # on v4.11-rc1
+arm_soc="${arm_soc} for-4.12/misc" # on v4.11-rc1
+arm_soc="${arm_soc} for-4.12/soc" # on v4.11-rc1
+arm_soc="${arm_soc} for-4.12/arm64/dt" # on v4.11-rc1
 
-branches="${branches} for-4.11/clk" # on v4.10-rc2
-branches="${branches} for-4.11/i2c" # on v4.10-rc2
+branches="${branches} for-4.12/clk" # on v4.11-rc1
 
 branches="${arm_soc} ${branches}"
