@@ -1,10 +1,8 @@
-merge_base=v4.11-rc1
+merge_base=v4.12-rc1
 
-arm_soc="${arm_soc} for-4.12/dt-bindings" # on v4.11-rc1
-arm_soc="${arm_soc} for-4.12/misc" # on v4.11-rc1
-arm_soc="${arm_soc} for-4.12/soc" # on v4.11-rc1
-arm_soc="${arm_soc} for-4.12/arm64/dt" # on v4.11-rc1
-
-branches="${branches} for-4.12/clk" # on v4.11-rc1
+arm_soc="${arm_soc} for-4.13/soc" # on for-4.13/pm
+arm_soc="${arm_soc} for-4.13/firmware" # on v4.12-rc1
+arm_soc="${arm_soc} for-4.13/arm/dt" # on v4.12-rc1
+arm_soc="${arm_soc} for-4.13/arm64/dt" # on v4.12-rc1
 
 branches="${arm_soc} ${branches}"
