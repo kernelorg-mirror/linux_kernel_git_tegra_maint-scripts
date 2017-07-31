@@ -103,9 +103,13 @@ for branch in ${arm_soc}; do
 	echo "" >&3
 	echo "Hi ARM SoC maintainers," >&3
 	echo "" >&3
-	git request-pull $merge_base $repository $tag >&3
+	git request-pull $merge_base $repository $tag >&3; rc=$?
 
 	exec 3>&-
+
+	if test "x$rc" != "x0"; then
+		rm "$message"
+	fi
 
 	index=$[index + 1]
 done
