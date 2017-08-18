@@ -1,8 +1,9 @@
-merge_base=v4.12-rc1
+merge_base=v4.13-rc1
 
-arm_soc="${arm_soc} for-4.13/soc" # on for-4.13/pm
-arm_soc="${arm_soc} for-4.13/firmware" # on v4.12-rc1
-arm_soc="${arm_soc} for-4.13/arm/dt" # on v4.12-rc1
-arm_soc="${arm_soc} for-4.13/arm64/dt" # on v4.12-rc1
+arm_soc="${arm_soc} for-4.14/firmware" # on v4.13-rc1
+arm_soc="${arm_soc} for-4.14/soc" # on v4.13-rc1
+arm_soc="${arm_soc} for-4.14/arm/core" # on v4.13-rc1
+arm_soc="${arm_soc} for-4.14/arm/dt" # on v4.13-rc1
+arm_soc="${arm_soc} for-4.14/arm/defconfig" # on v4.13-rc1
 
 branches="${arm_soc} ${branches}"
