@@ -1,14 +1,9 @@
-merge_base=v4.14-rc1
+merge_base=v4.15-rc1
 
-arm_soc="${arm_soc} for-4.15/dt-bindings" # on v4.14-rc1
-arm_soc="${arm_soc} for-4.15/firmware" # on v4.14-rc1
-arm_soc="${arm_soc} for-4.15/soc" # on for-4.15/firmware
-arm_soc="${arm_soc} for-4.15/thermal" # on for-4.15/dt-bindings, for-4.15/firmware
-arm_soc="${arm_soc} for-4.15/arm/dt" # on v4.14-rc1
-arm_soc="${arm_soc} for-4.15/arm64/dt" # on for-4.15/dt-bindings
-arm_soc="${arm_soc} for-4.15/arm64/defconfig" # on v4.14-rc1
-
-branches="${branches} for-4.15/clk" # on for-4.15/dt-bindings, for-4.15/firmware
-branches="${branches} for-4.15/reset" # on for-4.15/firmware
+arm_soc="${arm_soc} for-4.16/dt-bindings" # on v4.15-rc1
+arm_soc="${arm_soc} for-4.16/soc" # on for-4.16/dt-bindings
+arm_soc="${arm_soc} for-4.16/memory" # on for-4.16/dt-bindings
+arm_soc="${arm_soc} for-4.16/arm/dt" # on v4.15-rc1
+arm_soc="${arm_soc} for-4.16/arm64/dt" # on for-4.15/dt-bindings
 
 branches="${arm_soc} ${branches}"
