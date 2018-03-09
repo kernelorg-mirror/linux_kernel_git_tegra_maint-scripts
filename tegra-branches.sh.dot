@@ -2,6 +2,7 @@ merge_base=v4.16-rc1
 
 branches="${branches} for-4.17/clk" # on v4.16-rc1
 
+arm_soc="${arm_soc} for-4.17/misc" # on v4.16-rc1
 arm_soc="${arm_soc} for-4.17/dt-bindings" # on v4.16-rc1
 arm_soc="${arm_soc} for-4.17/firmware" # on v4.16-rc1
 arm_soc="${arm_soc} for-4.17/soc" # on v4.16-rc1
