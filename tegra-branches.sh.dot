@@ -1,11 +1,8 @@
-merge_base=v4.17-rc1
+merge_base=v4.18-rc1
 
-branches="${branches} for-4.18/clk" # on v4.17-rc1
-
-arm_soc="${arm_soc} for-4.18/dt-bindings" # on v4.17-rc1
-arm_soc="${arm_soc} for-4.18/memory" # on v4.17-rc1
-arm_soc="${arm_soc} for-4.18/arm/soc" # on v4.17-rc1
-arm_soc="${arm_soc} for-4.18/arm/dt" # on v4.17-rc1
-arm_soc="${arm_soc} for-4.18/arm64/dt" # on v4.17-rc1
+arm_soc="${arm_soc} for-4.19/dt-bindings" # on v4.18-rc1
+arm_soc="${arm_soc} for-4.19/memory" # on v4.18-rc1
+arm_soc="${arm_soc} for-4.19/arm/dt" # on v4.18-rc1
+arm_soc="${arm_soc} for-4.19/arm64/dt" # on v4.18-rc1
 
 branches="${arm_soc} ${branches}"
