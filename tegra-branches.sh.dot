@@ -2,6 +2,7 @@ merge_base=v4.18-rc1
 
 arm_soc="${arm_soc} for-4.19/dt-bindings" # on v4.18-rc1
 arm_soc="${arm_soc} for-4.19/memory" # on v4.18-rc1
+arm_soc="${arm_soc} for-4.19/firmware" # on v4.18-rc1
 arm_soc="${arm_soc} for-4.19/arm/dt" # on v4.18-rc1
 arm_soc="${arm_soc} for-4.19/arm64/dt" # on v4.18-rc1
 
