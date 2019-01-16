@@ -1,9 +1,12 @@
-merge_base=v4.19-rc1
+merge_base=v4.20-rc1
 
-arm_soc="${arm_soc} for-4.20/dt-bindings" # on v4.19-rc1
-arm_soc="${arm_soc} for-4.20/soc" # on for-4.20/dt-bindings
-arm_soc="${arm_soc} for-4.20/firmware" # on v4.19-rc1
-arm_soc="${arm_soc} for-4.20/arm/dt" # on v4.19-rc1
-arm_soc="${arm_soc} for-4.20/arm64/dt" # on v4.19-rc1
+branches="${branches} for-4.21/clk" # on v4.20-rc1
+
+arm_soc="${arm_soc} for-4.21/dt-bindings" # on v4.20-rc1
+arm_soc="${arm_soc} for-4.21/soc" # on v4.20-rc1
+arm_soc="${arm_soc} for-4.21/firmware" # on v4.20-rc1
+arm_soc="${arm_soc} for-4.21/memory" # on v4.20-rc1
+arm_soc="${arm_soc} for-4.21/arm/dt" # on v4.20-rc1
+arm_soc="${arm_soc} for-4.21/arm64/dt" # on for-4.21/dt-bindings
 
 branches="${arm_soc} ${branches}"
