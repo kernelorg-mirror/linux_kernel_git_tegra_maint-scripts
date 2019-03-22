@@ -11,6 +11,12 @@ opt_branches=yes
 opt_tags=no
 
 while test $# -gt 0; do
+	if test -n "$prev"; then
+		eval "$prev=$1"
+		shift; prev=
+		continue
+	fi
+
 	case $1 in
 		--arm-soc)
 			branches="$arm_soc"
@@ -19,6 +25,11 @@ while test $# -gt 0; do
 
 		-n | --dry-run)
 			opt_dry_run=yes
+			shift
+			;;
+
+		-r | --remote)
+			prev=remote
 			shift
 			;;
 
@@ -39,6 +50,7 @@ while test $# -gt 0; do
 			echo "options:"
 			echo "  --arm-soc          operate on ARM-SoC branches only"
 			echo "  -n, --dry-run      pretend to push"
+			echo "  -r, --remote       override default remote"
 			echo "  -t, --tags         push tags"
 			echo "  -T, --tags-only    push tags only"
 			exit 1
@@ -46,7 +58,10 @@ while test $# -gt 0; do
 	esac
 done
 
-remote=$(get_remote)
+if test -z "$remote"; then
+	remote=$(get_remote)
+fi
+
 args="--force"
 
 if test "x$opt_dry_run" = "xyes"; then
