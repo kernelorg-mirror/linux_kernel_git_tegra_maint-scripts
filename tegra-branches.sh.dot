@@ -1,16 +1,7 @@
-merge_base=v5.0-rc1
+merge_base=v5.1-rc1
 
-arm_soc="${arm_soc} for-5.1/clk" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/cpufreq" # on v5.0-rc1
-
-arm_soc="${arm_soc} for-5.1/dt-bindings" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/soc" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/firmware" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/arm/core" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/arm/dt" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/arm64/dt" # on v5.0-rc1
-arm_soc="${arm_soc} for-5.1/arm64/defconfig" # on v5.0-rc1
-
-arm_soc="${arm_soc} for-5.1/fixes" # on for-5.1/arm64/dt
+arm_soc="${arm_soc} for-5.2/soc" # on v5.1-rc1 and reset/acquire
+arm_soc="${arm_soc} for-5.2/arm/soc" # on v5.1-rc1
+arm_soc="${arm_soc} for-5.2/arm64/dt" # on v5.1-rc1
 
 branches="${arm_soc} ${branches}"
