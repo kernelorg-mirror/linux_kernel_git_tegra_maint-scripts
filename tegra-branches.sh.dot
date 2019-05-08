@@ -1,7 +1,14 @@
 merge_base=v5.1-rc1
 
+arm_soc="${arm_soc} for-5.2/bus" # on v5.1-rc1
 arm_soc="${arm_soc} for-5.2/soc" # on v5.1-rc1 and reset/acquire
+arm_soc="${arm_soc} for-5.2/firmware" # on v5.1-rc1
+arm_soc="${arm_soc} for-5.2/memory" # on v5.1-rc1
 arm_soc="${arm_soc} for-5.2/arm/soc" # on v5.1-rc1
-arm_soc="${arm_soc} for-5.2/arm64/dt" # on v5.1-rc1
+arm_soc="${arm_soc} for-5.2/arm/dt" # on v5.1-rc1
+arm_soc="${arm_soc} for-5.2/arm/defconfig" # on v5.1-rc1 and multi-v7-defconfig-for-v5.2-signed
+arm_soc="${arm_soc} for-5.2/arm64/soc" # on v5.1-rc1
+arm_soc="${arm_soc} for-5.2/arm64/dt" # on v5.1-rc3
+arm_soc="${arm_soc} for-5.2/arm64/defconfig" # on v5.1-rc1
 
 branches="${arm_soc} ${branches}"
