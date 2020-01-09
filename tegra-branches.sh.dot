@@ -1,16 +1,11 @@
-merge_base=v5.4-rc1
+merge_base=v5.5-rc1
 
-arm_soc="${arm_soc} for-5.5/dt-bindings" # on v5.4-rc1
-arm_soc="${arm_soc} for-5.5/firmware" # on v5.4-rc1
-arm_soc="${arm_soc} for-5.5/memory" # on for-5.5/clk, v5.4-rc1
-arm_soc="${arm_soc} for-5.5/soc" # on v5.4-rc1
-arm_soc="${arm_soc} for-5.5/arm/core" # on v5.4-rc1
-arm_soc="${arm_soc} for-5.5/arm/dt" # on v5.4-rc1
-arm_soc="${arm_soc} for-5.5/arm/defconfig" # on v5.4-rc1
-arm_soc="${arm_soc} for-5.5/arm64/dt" # on v5.4-rc1
+arm_soc="${arm_soc} for-5.6/dt-bindings" # on v5.5-rc1
+arm_soc="${arm_soc} for-5.6/memory" # on v5.5-rc1
+arm_soc="${arm_soc} for-5.6/arm/core" # on v5.5-rc1
+arm_soc="${arm_soc} for-5.6/arm/dt" # on v5.5-rc1
+arm_soc="${arm_soc} for-5.6/arm64/dt" # on v5.5-rc1
 
-branches="${branches} for-5.5/clk-core" # on v5.4-rc1
-branches="${branches} for-5.5/clk" # on for-5.5/clk-core, for-5.5/dt-bindings
-branches="${branches} for-5.5/cpufreq" # on v5.4-rc1
+branches="${branches} for-5.6/clk" # on v5.5-rc1
 
 branches="${arm_soc} ${branches}"
