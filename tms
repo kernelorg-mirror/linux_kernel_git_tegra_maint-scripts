@@ -1,0 +1,499 @@
+#!/usr/bin/python3
+
+import argparse, email.message, git, io, logging, os, os.path, re, subprocess
+import sys, yaml
+
+class Remote:
+    def __init__(self, name, data):
+        self.name = name
+        self.push = None
+        self.pull = None
+
+        if 'push' in data:
+            self.push = data['push']
+
+        if 'pull' in data:
+            self.pull = data['pull']
+
+    def __str__(self):
+        return self.name
+
+    def dump(self, indent = 0, output = sys.stdout):
+        prefix = ' ' * indent
+
+        print('%s%s: %s' % (prefix, self.name, self.url), file = output)
+
+class Target:
+    def __init__(self, name, data):
+        self.name = name
+        self.prefix = None
+        self.data = data
+
+        if 'tag-prefix' in data:
+            self.prefix = data['tag-prefix']
+        else:
+            self.prefix = ''
+
+        if 'from' in data:
+            self.author = data['from']
+        else:
+            self.author = None
+
+        if 'to' in data:
+            self.to = data['to']
+        else:
+            self.to = []
+
+        if 'cc' in data:
+            self.cc = data['cc']
+        else:
+            self.cc = []
+
+    def __str__(self):
+        return self.name
+
+    def dump(self, indent = 0, output = sys.stdout):
+        prefix = ' ' * indent
+
+        print('%s%s:' % (prefix, self.name), file = output)
+
+class Branch:
+    def __init__(self, tree, name, data):
+        self.tree = tree
+        self.name = name
+        self.data = data
+
+        self.remote = None
+        self.target = None
+        self.branches = []
+
+        if 'remote' in data:
+            self.remote = tree.find_remote(data['remote'])
+
+        if 'target' in data:
+            self.target = tree.find_target(data['target'])
+
+        if 'dependencies' in data:
+            for name, branch in data['dependencies'].items():
+                branch = Branch(self.tree, name, branch)
+                self.branches.append(branch)
+
+    def __iter__(self):
+        return iter(self.branches)
+
+    def __str__(self):
+        return self.name
+
+    def checkout(self, repo, dry_run = False):
+        print('checking out %s...' % self.name)
+
+        if not dry_run:
+            repo.git.checkout(self.name)
+
+            #branch = repo.refs[self.name]
+            #repo.head.reference = branch
+
+            #repo.head.reset(index = True, working_tree = True)
+
+    def reset(self, repo, branch, dry_run = False):
+        if branch.name in repo.tags:
+            print('resetting branch %s to tag %s...' % (self.name, branch.name))
+            base = '%s' % branch.name
+        else:
+            print('resetting branch %s to %s...' % (self.name, base))
+
+            if branch.remote:
+                base = '%s/%s' % (branch.remote.name, branch.name)
+            else:
+                base = '%s' % branch.name
+
+        if not dry_run:
+            repo.git.reset(base, hard = True)
+
+    def merge(self, repo, dry_run = False):
+        base = None
+
+        self.checkout(repo, dry_run = dry_run)
+
+        for branch in self.branches:
+            if not base:
+                self.reset(repo, branch, dry_run = dry_run)
+                base = branch
+
+            print('Merging branch %s into %s' % (branch.name, self.name))
+
+            if not dry_run:
+                message = 'Merge branch %s into %s' % (branch.name, self.name)
+                repo.git.merge(branch.name, m = message, no_ff = True)
+
+    def push(self, repo, push_tags = False, targets = None, dry_run = False):
+        if not self.remote:
+            raise Exception('cannot push branch %s without remote' % self)
+
+        remote = self.remote.name
+        branches = []
+        tags = []
+
+        for branch in self.branches:
+            if branch.target:
+                if targets and branch.target.name not in targets:
+                    continue
+            else:
+                continue
+
+            branches.append('%s' % branch.name)
+
+            if push_tags:
+                tag_prefix = branch.target.prefix
+                tag = '%s%s' % (tag_prefix, branch.name.replace('/', '-'))
+                tags.append('%s' % tag)
+
+        branches.append('%s' % self.name)
+        branches.extend(tags)
+
+        (status, stdout, stderr) = repo.git.push(remote, branches,
+                                                 with_extended_output = True,
+                                                 with_exceptions = False,
+                                                 dry_run = dry_run,
+                                                 force = True)
+
+        print(stderr)
+
+        if status != 0:
+            sys.exit(status)
+
+    def request_pull(self, repo, targets = None, dry_run = False):
+        config = repo.config_reader()
+        buckets = {}
+
+        for branch in self.branches:
+            if branch.target:
+                if targets and branch.target.name not in targets:
+                    continue
+
+                if branch.target not in buckets:
+                    buckets[branch.target] = [ ]
+
+                buckets[branch.target].append(branch)
+
+        for target, branches in buckets.items():
+            print('target: %s' % target)
+
+            if not target.author:
+                author = (config.get('user', 'name'),
+                          config.get('user', 'email'))
+                author = email.utils.formataddr(author)
+            else:
+                author = target.author
+
+            count = len(branches)
+
+            for index, branch in enumerate(branches, 1):
+                base = branch.branches[0].name
+                prefix = branch.target.prefix
+
+                release = branch.name.split('/')[0]
+                path = os.path.join('pull-request/%s/%s' % (release, target))
+                os.makedirs(path, exist_ok = True)
+
+                tag = '%s%s' % (prefix, branch.name.replace('/', '-'))
+                subject = repo.tags[tag].tag.message.splitlines()[0]
+
+                firstname = author.split()[0]
+                to = ', '.join(target.to)
+                cc = ', '.join(target.cc)
+
+                # XXX
+                width = 1
+
+                message = email.message.EmailMessage()
+                message['From'] = author
+                message['To'] = to
+                message['Cc'] = cc
+                message['Subject'] = '[GIT PULL %0*u/%0*u] %s' % (width, index,
+                                                                  width, count,
+                                                                  subject)
+
+                content  = 'Hi ARM SoC maintainers,\n'
+                content += '\n'
+
+                pull_request = repo.git.request_pull(branch.branches[0].name,
+                                                     branch.remote.pull, tag)
+                separator = False
+                prefix = ''
+
+                for line in pull_request.splitlines():
+                    if line == '-' * 64 and not separator:
+                        content += '%sThanks,' % prefix
+                        content += '%s%s\n' % (prefix, firstname)
+                        separator = True
+
+                    content += '%s%s' % (prefix, line)
+                    prefix = '\n'
+
+                message.set_content(content)
+
+                filename = os.path.join(path, '%04u-%s' % (index, tag))
+                print('writing message to %s' % filename)
+
+                with io.open(filename, 'w') as output:
+                    print(message, file = output, end = '')
+
+    def tag(self, repo, prefix, targets = None, dry_run = False):
+        EDITOR = os.environ.get('EDITOR', 'vim')
+        message = '''
+                  # Write a message for tag:
+                  #   %s
+                  # Lines starting with '#' will b ignored.'''
+
+        for branch in self.branches:
+            if branch.target:
+                if targets and branch.target.name not in targets:
+                    continue
+
+                if prefix is None:
+                    tag_prefix = branch.target.prefix
+                else:
+                    tag_prefix = prefix
+
+                tag = '%s%s' % (tag_prefix, branch.name.replace('/', '-'))
+                print('  tagging %s as %s' % (branch, tag))
+
+                if tag in repo.tags:
+                    print('WARNING: tag %s already exists, skipping' % tag)
+                    continue
+
+                # gitpython will always redirect the stdout to a PIPE and vim
+                # won't be able to display anything on screen in that case so
+                # call git manually for signed tags.
+                res = subprocess.call([repo.git.GIT_PYTHON_GIT_EXECUTABLE,
+                                       'tag', '--sign', tag, branch.name])
+                if res != 0:
+                    break
+
+    def dump(self, indent = 0, output = sys.stdout):
+        prefix = ' ' * indent
+
+        print('%s%s:' % (prefix, self.name), file = output)
+
+        for dependency in self.branches:
+            dependency.dump(indent + 2, output = output)
+
+class Tree:
+    def __init__(self, data):
+        self.data = data
+
+        self.remotes = []
+        self.targets = []
+        self.branches = []
+
+        for name, remote in data['remotes'].items():
+            remote = Remote(name, remote)
+            self.remotes.append(remote)
+
+        for name, target in data['targets'].items():
+            target = Target(name, target)
+            self.targets.append(target)
+
+        for name, branch in data['branches'].items():
+            branch = Branch(self, name, branch)
+            self.branches.append(branch)
+
+    def __iter__(self):
+        return iter(self.branches)
+
+    def find_remote(self, name):
+        for remote in self.remotes:
+            if remote.name == name:
+                return remote
+
+        return None
+
+    def find_target(self, name):
+        for target in self.targets:
+            if target.name == name:
+                return target
+
+        return None
+
+    def dump(self, indent = 0, output = sys.stdout):
+        prefix = ' ' * indent
+
+        print('%sremotes:' % prefix, file = output)
+
+        for remote in self.remotes:
+            remote.dump(indent = indent + 2, output = output)
+
+        print('%stargets:' % prefix, file = output)
+
+        for target in self.targets:
+            target.dump(indent = indent + 2, output = output)
+
+        print('%sbranches:' % prefix, file = output)
+
+        for branch in self.branches:
+            branch.dump(indent = indent + 2, output = output)
+
+def load_tree():
+    topdir = os.path.dirname(sys.argv[0])
+    filename = os.path.join(topdir, 'tegra-branches.yaml')
+
+    with io.open(filename, 'r') as fobj:
+        data = yaml.load(fobj, Loader = yaml.SafeLoader)
+
+    return Tree(data)
+
+class Command:
+    @classmethod
+    def setup(cls, parser):
+        if hasattr(cls, 'subcommands'):
+            sub_parsers = parser.add_subparsers(title = 'subcommands')
+
+            for subcommand in cls.subcommands:
+                sub_parser = sub_parsers.add_parser(subcommand.name,
+                                                    help = subcommand.help)
+                sub_parser.set_defaults(run = subcommand.run)
+                subcommand.setup(sub_parser)
+
+    @classmethod
+    def run(cls, args):
+        pass
+
+class CommandMerge(Command):
+    name = 'merge'
+    help = 'merge branch'
+
+    @classmethod
+    def setup(cls, parser):
+        super().setup(parser)
+        parser.add_argument('-n', '--dry-run', action = 'store_true',
+                            help = 'display the actions that would be performed')
+        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+                            help = 'names of branches to push')
+
+    @classmethod
+    def run(cls, args):
+        repo = git.Repo('.')
+        tree = load_tree()
+
+        for branch in tree:
+            if args.branches and branch.name not in args.branches:
+                continue
+
+            print('creating branch %s...' % branch)
+            branch.merge(repo, dry_run = args.dry_run)
+
+class CommandPush(Command):
+    name = 'push'
+    help = 'push branches'
+
+    @classmethod
+    def setup(cls, parser):
+        super().setup(parser)
+        parser.add_argument('-n', '--dry-run', action = 'store_true',
+                            help = 'do everything except actually send the updates')
+        parser.add_argument('--tags', action = 'store_true',
+                            help = 'push tags along with branches')
+        parser.add_argument('-t', '--target', dest = 'targets',
+                            action = 'append', type = str,
+                            help = 'list of targets for which to push')
+        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+                            help = 'names of branches to push')
+
+    @classmethod
+    def run(cls, args):
+        repo = git.Repo('.')
+        tree = load_tree()
+
+        for branch in tree:
+            if args.branches and branch.name not in args.branches:
+                continue
+
+            print('pushing branch %s...' % branch)
+            branch.push(repo, push_tags = args.tags, targets = args.targets,
+                        dry_run = args.dry_run)
+
+class CommandRequestPull(Command):
+    name = 'request-pull'
+    help = 'request-pull for a branch'
+
+    @classmethod
+    def setup(cls, parser):
+        super().setup(parser)
+        parser.add_argument('-n', '--dry-run', action = 'store_true',
+                            help = 'display the actions that would be performed')
+        parser.add_argument('-t', '--target', dest = 'targets',
+                            action = 'append', type = str,
+                            help = 'list of targets for which to request-pull')
+        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+                            help = 'names of branches to tag')
+
+    @classmethod
+    def run(cls, args):
+        repo = git.Repo('.')
+        tree = load_tree()
+
+        for branch in tree:
+            if args.branches and branch.name not in args.branches:
+                continue
+
+            print('request-pull for %s...' % branch)
+            branch.request_pull(repo, targets = args.targets,
+                                dry_run = args.dry_run)
+
+class CommandTag(Command):
+    name = 'tag'
+    help = 'tag branches'
+
+    @classmethod
+    def setup(cls, parser):
+        super().setup(parser)
+        parser.add_argument('-n', '--dry-run', action = 'store_true',
+                            help = 'display the actions that would be performed')
+        parser.add_argument('-p', '--prefix', type = str,
+                            help = 'prefix to prepend to tag names')
+        parser.add_argument('-t', '--target', dest = 'targets',
+                            action = 'append', type = str,
+                            help = 'list of targets for which to tag')
+        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+                            help = 'names of branches to tag')
+
+    @classmethod
+    def run(cls, args):
+        repo = git.Repo('.')
+        tree = load_tree()
+
+        for branch in tree:
+            if args.branches and branch.name not in args.branches:
+                continue
+
+            print('tagging branch %s...' % branch)
+            branch.tag(repo, args.prefix, targets = args.targets,
+                       dry_run = args.dry_run)
+
+commands = [
+    CommandMerge,
+    CommandPush,
+    CommandRequestPull,
+    CommandTag,
+]
+
+if __name__ == '__main__':
+    logging.basicConfig(level = logging.INFO)
+
+    parser = argparse.ArgumentParser()
+
+    cmd_parsers = parser.add_subparsers(title = 'commands')
+
+    for cmd in commands:
+        cmd_parser = cmd_parsers.add_parser(cmd.name, help = cmd.help)
+        cmd_parser.set_defaults(run = cmd.run)
+        cmd.setup(cmd_parser)
+
+    args = parser.parse_args()
+
+    if not hasattr(args, 'run'):
+        parser.print_help()
+        sys.exit(1)
+
+    args.run(args)

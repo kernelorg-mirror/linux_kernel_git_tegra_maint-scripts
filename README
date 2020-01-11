@@ -1,0 +1,19 @@
+Use the following commands to merge and publish the for-next branch during
+the release cycle:
+
+    $ tms merge for-next
+    $ tms push for-next
+
+Tag ARM-SoC branches:
+
+    $ tms tag --target arm-soc for-next
+
+Push ARM-SoC branches and tags:
+
+    $ tms push --target arm-soc --tags for-next
+
+Generate pull-requests:
+
+    $ tms request-pull --target arm-soc for-next
+
+Send out pull requests using git send-email.
