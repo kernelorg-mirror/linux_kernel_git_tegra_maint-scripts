@@ -1,0 +1,111 @@
+# git repository remotes
+remotes:
+  origin:
+    pull: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+  next:
+    pull: git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+  tegra:
+    push: git@gitolite.kernel.org:pub/scm/linux/kernel/git/tegra/linux.git
+    pull: git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git
+  github:
+    push: git@github.com:thierryreding/linux.git
+
+# subsystem trees
+targets:
+  arm-soc:
+    tag-prefix: tegra-
+    from: Thierry Reding <thierry.reding@gmail.com>
+    to:
+      - arm@kernel.org
+      - soc@kernel.org
+    cc:
+      - Thierry Reding <thierry.reding@gmail.com>
+      - Jon Hunter <jonathanh@nvidia.com>
+      - linux-tegra@vger.kernel.org
+      - linux-arm-kernel@lists.infradead.org
+  clk:
+    to:
+      - Michael Turquette <mturquette@baylibre.com>
+      - Stephen Boyd <sboyd@kernel.org>
+    cc:
+      - linux-clk@vger.kernel.org
+      - linux-tegra@vger.kernel.org
+
+# local branches
+branches:
+  for-next:
+    remote: tegra
+    dependencies:
+      v5.5-rc1:
+        remote: origin
+
+      for-5.6/dt-bindings:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/bus:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/memory:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/soc:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/arm/core:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/arm/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/arm64/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/arm64/defconfig:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+      for-5.6/clk:
+        remote: tegra
+        target: clk
+        dependencies:
+          v5.5-rc1:
+            remote: origin
+
+  for-5.6/work:
+    remote: github
+    dependencies:
+      master:
+        remote: next
+
+# vim: ft=yaml et sts=2 sw=2 ts=2
