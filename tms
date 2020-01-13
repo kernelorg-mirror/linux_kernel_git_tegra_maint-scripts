@@ -256,12 +256,6 @@ class Branch:
                     print(message, file = output, end = '')
 
     def tag(self, repo, prefix, targets = None, dry_run = False):
-        EDITOR = os.environ.get('EDITOR', 'vim')
-        message = '''
-                  # Write a message for tag:
-                  #   %s
-                  # Lines starting with '#' will b ignored.'''
-
         for branch in self.branches:
             if branch.target:
                 if targets and branch.target.name not in targets:
