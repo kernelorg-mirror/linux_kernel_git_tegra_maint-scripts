@@ -14,7 +14,6 @@ remotes:
 targets:
   arm-soc:
     tag-prefix: tegra-
-    from: Thierry Reding <thierry.reding@gmail.com>
     to:
       - arm@kernel.org
       - soc@kernel.org
