@@ -273,9 +273,9 @@ class Branch:
                     print('WARNING: tag %s already exists, skipping' % tag)
                     continue
 
-                # gitpython will always redirect the stdout to a PIPE and vim
-                # won't be able to display anything on screen in that case so
-                # call git manually for signed tags.
+                # gitpython will always redirect the stdout to a PIPE and the
+                # $EDITOR won't be able to display anything on screen in that
+                # case so call git manually for signed tags.
                 res = subprocess.call([repo.git.GIT_PYTHON_GIT_EXECUTABLE,
                                        'tag', '--sign', tag, branch.name])
                 if res != 0:
