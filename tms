@@ -219,8 +219,8 @@ class Branch:
                 to = ', '.join(target.to)
                 cc = ', '.join(target.cc)
 
-                # XXX
-                width = 1
+                # make [GIT PULL index/count] look pretty
+                width = math.ceil(math.log10(count + 1))
 
                 message = email.message.EmailMessage()
                 message['From'] = author
