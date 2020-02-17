@@ -1,7 +1,6 @@
 #!/bin/bash
 
 set -e
-set -x
 
 . "${0%/*}/tegra-branches.sh.dot"
 . "${0%/*}/lib.sh"
