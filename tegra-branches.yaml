@@ -22,6 +22,7 @@ targets:
       - Jon Hunter <jonathanh@nvidia.com>
       - linux-tegra@vger.kernel.org
       - linux-arm-kernel@lists.infradead.org
+    addressee: ARM SoC maintainers
   clk:
     to:
       - Michael Turquette <mturquette@baylibre.com>
@@ -29,6 +30,7 @@ targets:
     cc:
       - linux-clk@vger.kernel.org
       - linux-tegra@vger.kernel.org
+    addressee: Mike, Stephen
 
 # local branches
 branches:
