@@ -62,6 +62,11 @@ class Target:
         else:
             self.cc = []
 
+        if 'addressee' in data:
+            self.addressee = data['addressee']
+        else:
+            self.addressee = None
+
     def __str__(self):
         return self.name
 
@@ -230,8 +235,12 @@ class Branch:
                                                                   width, count,
                                                                   subject)
 
-                content  = 'Hi ARM SoC maintainers,\n'
-                content += '\n'
+                if target.addressee:
+                    content  = 'Hi %s,\n' % target.addressee
+                    content += '\n'
+                else:
+                    content  = 'Hi,\n'
+                    content += '\n'
 
                 pull_request = repo.git.request_pull(branch.branches[0].name,
                                                      branch.remote.pull, tag)
