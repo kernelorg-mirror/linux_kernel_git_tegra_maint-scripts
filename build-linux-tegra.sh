@@ -6,6 +6,9 @@ set -e
 . "${0%/*}/tegra-branches.sh.dot"
 . "${0%/*}/lib.sh"
 
+default_branches="$branches for-next"
+branches=
+
 function usage()
 {
 	echo "usage: $1 [options]"
@@ -13,14 +16,18 @@ function usage()
 	echo "options:"
 	echo "  -i, --incremental    build all branches incrementally"
 	echo "  -j, --jobs JOBS      number of parallel jobs to run"
+	echo "  -k, --keep           do not clean up worktree"
 	echo "  -n, --dry-run        display what would be done"
 	echo "  -o, --output DIR     set build output directory"
+	echo "  -w, --worktree DIR   set worktree directory"
 }
 
 outputdir=build/tegra
+worktree=
 dry_run=no
 incremental=no
 num_jobs=1
+keep=no
 
 while test $# -gt 0; do
 	if test -n "$prev"; then
@@ -40,6 +47,11 @@ while test $# -gt 0; do
 			shift
 			;;
 
+		-k | --keep)
+			keep=yes
+			shift
+			;;
+
 		-n | --dry-run)
 			dry_run=yes
 			shift
@@ -50,18 +62,42 @@ while test $# -gt 0; do
 			shift
 			;;
 
-		*)
+		-w | --worktree)
+			prev=worktree
+			shift
+			;;
+
+		-* | --*)
 			usage $0
 			exit 1
+			;;
+
+		*)
+			branches="$branches $1"
+			shift
 			;;
 	esac
 done
 
-for branch in ${branches} for-next; do
+if test "x$branches" = "x"; then
+	branches="$default_branches"
+fi
+
+if test "x$worktree" != "x"; then
+	oldpwd=`pwd`
+	git worktree add --detach "$worktree"
+	cd "$worktree"
+fi
+
+for branch in ${branches}; do
 	if test "x$dry_run" = "xyes"; then
 		echo "dry-run: building $branch"
 	else
-		git checkout ${branch}
+		if test "x$worktree" != "x"; then
+			git reset --hard ${branch}
+		else
+			git checkout ${branch}
+		fi
 	fi
 
 	while read arch config; do
@@ -92,3 +128,8 @@ for branch in ${branches} for-next; do
 		echo "done"
 	done < "${0%/*}/configs"
 done
+
+if test "x$worktree" != "x" -a "x$keep" = "xno"; then
+	cd "$oldpwd"
+	git worktree remove "$worktree"
+fi
