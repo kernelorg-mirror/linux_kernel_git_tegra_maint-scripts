@@ -224,16 +224,20 @@ class Branch:
                 to = ', '.join(target.to)
                 cc = ', '.join(target.cc)
 
-                # make [GIT PULL index/count] look pretty
-                width = math.ceil(math.log10(count + 1))
+                if count > 1:
+                    # make [GIT PULL index/count] look pretty
+                    width = math.ceil(math.log10(count + 1))
+
+                    subject = '[GIT PULL %0*u/%0*u] %s' % (width, index, width,
+                                                           count, subject)
+                else:
+                    subject = '[GIT PULL] %s' % subject
 
                 message = email.message.EmailMessage()
                 message['From'] = author
                 message['To'] = to
                 message['Cc'] = cc
-                message['Subject'] = '[GIT PULL %0*u/%0*u] %s' % (width, index,
-                                                                  width, count,
-                                                                  subject)
+                message['Subject'] = subject
 
                 if target.addressee:
                     content  = 'Hi %s,\n' % target.addressee
