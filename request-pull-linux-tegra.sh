@@ -53,7 +53,7 @@ git_tag_get_subject()
 repository=git://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git
 remote=$(get_remote)
 
-to="arm@kernel.org"
+to="arm@kernel.org, soc@kernel.org"
 cc="Thierry Reding <thierry.reding@gmail.com>"
 cc="$cc, Jon Hunter <jonathanh@nvidia.com>"
 cc="$cc, linux-tegra@vger.kernel.org"
