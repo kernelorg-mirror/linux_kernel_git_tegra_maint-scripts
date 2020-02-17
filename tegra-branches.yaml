@@ -103,10 +103,10 @@ branches:
           v5.5-rc1:
             remote: origin
 
-  for-5.6/work:
-    remote: github
-    dependencies:
-      master:
-        remote: next
+#  for-5.6/work:
+#    remote: github
+#    dependencies:
+#      master:
+#        remote: next
 
 # vim: ft=yaml et sts=2 sw=2 ts=2
