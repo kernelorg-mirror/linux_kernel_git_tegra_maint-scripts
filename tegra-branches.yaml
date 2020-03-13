@@ -31,6 +31,22 @@ targets:
       - linux-clk@vger.kernel.org
       - linux-tegra@vger.kernel.org
     addressee: Mike, Stephen
+  cpuidle:
+    to:
+      - Rafael J. Wysocki <rjw@rjwysocki.net>
+      - Daniel Lezcano <daniel.lezcano@linaro.org>
+    cc:
+      - linux-pm@vger.kernel.org
+      - linux-tegra@vger.kernel.org
+    addressee: Rafael, Daniel
+  usb:
+    to:
+      - Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+      - Felipe Balbi <balbi@kernel.org>
+    cc:
+      - linux-usb@vger.kernel.org
+      - linux-tegra@vger.kernel.org
+    addressee: Greg, Felipe
 
 # local branches
 branches:
@@ -40,7 +56,87 @@ branches:
       v5.6-rc1:
         remote: origin
 
+      for-5.7/phy:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+
+      for-5.7/usb:
+        remote: tegra
+        target: usb
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/phy:
+            remote: tegra
+
+      for-5.7/dt-bindings:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+
+      for-5.7/clk:
+        remote: tegra
+        target: clk
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/dt-bindings:
+            remote: tegra
+
+      for-5.7/arm/core:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: tegra
+
+      for-5.7/cpuidle:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/arm/core:
+            remote: tegra
+
       for-5.7/firmware:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+
+      for-5.7/soc:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/dt-bindings:
+            remote: tegra
+
+      for-5.7/memory:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+
+      for-5.7/arm/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/dt-bindings:
+            remote: tegra
+
+      for-5.7/arm/defconfig:
         remote: tegra
         target: arm-soc
         dependencies:
@@ -51,8 +147,10 @@ branches:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.5-rc1:
+          v5.6-rc1:
             remote: origin
+          for-5.7/dt-bindings:
+            remote: tegra
 
 #  for-5.7/work:
 #    remote: github
