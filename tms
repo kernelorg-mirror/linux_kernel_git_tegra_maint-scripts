@@ -475,7 +475,7 @@ class CommandMerge(Command):
         parser.add_argument('-n', '--dry-run', action = 'store_true',
                             help = 'display the actions that would be performed')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
-                            help = 'names of branches to push')
+                            help = 'names of branches to merge')
 
     @classmethod
     def run(cls, args):
