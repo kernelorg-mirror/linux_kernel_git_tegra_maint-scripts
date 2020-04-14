@@ -158,4 +158,20 @@ branches:
 #      master:
 #        remote: next
 
+builds:
+  arm:
+    tegra_defconfig:
+      branches:
+        remotes:
+          - tegra
+    multi_v7_defconfig:
+      branches:
+        remotes:
+          - tegra
+  arm64:
+    defconfig:
+      branches:
+        remotes:
+          - tegra
+
 # vim: ft=yaml et sts=2 sw=2 ts=2
