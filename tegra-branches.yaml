@@ -56,53 +56,12 @@ branches:
       v5.6-rc1:
         remote: origin
 
-      for-5.7/phy:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.6-rc1:
-            remote: origin
-
-      for-5.7/usb:
-        remote: tegra
-        target: usb
-        dependencies:
-          v5.6-rc1:
-            remote: origin
-          for-5.7/phy:
-            remote: tegra
-
       for-5.7/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
           v5.6-rc1:
             remote: origin
-
-      for-5.7/clk:
-        remote: tegra
-        target: clk
-        dependencies:
-          v5.6-rc1:
-            remote: origin
-          for-5.7/dt-bindings:
-            remote: tegra
-
-      for-5.7/arm/core:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.6-rc1:
-            remote: tegra
-
-      for-5.7/cpuidle:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.6-rc1:
-            remote: origin
-          for-5.7/arm/core:
-            remote: tegra
 
       for-5.7/firmware:
         remote: tegra
@@ -127,6 +86,13 @@ branches:
           v5.6-rc1:
             remote: origin
 
+      for-5.7/arm/core:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: tegra
+
       for-5.7/arm/dt:
         remote: tegra
         target: arm-soc
@@ -150,6 +116,40 @@ branches:
           v5.6-rc1:
             remote: origin
           for-5.7/dt-bindings:
+            remote: tegra
+
+      for-5.7/clk:
+        remote: tegra
+        target: clk
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/dt-bindings:
+            remote: tegra
+
+      for-5.7/cpuidle:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.6-rc1:
+            remote: origin
+          for-5.7/arm/core:
+            remote: tegra
+
+      for-5.7/phy:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          ca9e742b5c27:
+            remote: usb
+
+      for-5.7/usb:
+        remote: tegra
+        target: usb
+        dependencies:
+          ca9e742b5c27:
+            remote: usb
+          for-5.7/phy:
             remote: tegra
 
 #  for-5.7/work:
