@@ -16,6 +16,89 @@ def read_dotconfig():
     except:
         return None
 
+class Log:
+    COLOR_NONE = '\033[0m'
+    COLOR_RED = '\033[31;1m'
+    COLOR_GREEN = '\033[32;1m'
+    COLOR_YELLOW = '\033[33;1m'
+    COLOR_BLUE = '\033[34;1m'
+    COLOR_MAGENTA = '\033[35;1m'
+
+    def __init__(self, colorize = True):
+        self.color = Log.COLOR_NONE
+        self.colorize = colorize
+        self.stack = []
+
+    def push(self, obj, color = None):
+        if not self.colorize:
+            color = None
+
+        if not color:
+            return str(obj)
+
+        self.stack.append(self.color)
+        self.color = color
+
+        return self.color + str(obj)
+
+    def pop(self, obj = None):
+        if not self.colorize:
+            return str(obj)
+
+        if self.stack:
+            self.color = self.stack.prop()
+        else:
+            print('ERROR: unbalanced pop()')
+            self.color = Log.COLOR_NONE
+
+        if obj is not None:
+            return self.color + str(obj)
+
+    def wrap(self, obj, color = None):
+        if not self.colorize:
+            color = None
+
+        if not color:
+            return str(obj)
+
+        return color + str(obj) + Log.COLOR_NONE
+
+    def red(self, obj, push = False):
+        if push:
+            return self.push(obj, Log.COLOR_RED)
+        else:
+            return self.wrap(obj, Log.COLOR_RED)
+
+    def green(self, obj, push = False):
+        if push:
+            return self.push(obj, Log.COLOR_GREEN)
+        else:
+            return self.wrap(obj, Log.COLOR_GREEN)
+
+    def yellow(self, obj, push = False):
+        if push:
+            return self.push(obj, Log.COLOR_YELLOW)
+        else:
+            return self.wrap(obj, Log.COLOR_YELLOW)
+
+    def yellow(self, obj, push = False):
+        if push:
+            return self.push(obj, Log.COLOR_YELLOW)
+        else:
+            return self.wrap(obj, Log.COLOR_YELLOW)
+
+    def blue(self, obj, push = False):
+        if push:
+            return self.push(obj, Log.COLOR_BLUE)
+        else:
+            return self.wrap(obj, Log.COLOR_BLUE)
+
+    def magenta(self, obj, push = False):
+        if push:
+            return self.push(obj, Log.COLOR_MAGENTA)
+        else:
+            return self.wrap(obj, Log.COLOR_MAGENTA)
+
 class Remote:
     def __init__(self, name, data):
         self.name = name
