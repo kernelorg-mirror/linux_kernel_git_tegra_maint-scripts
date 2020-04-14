@@ -16,6 +16,23 @@ def read_dotconfig():
     except:
         return None
 
+class fragile(object):
+    class Break(Exception):
+        '''Break out of the with statement'''
+
+    def __init__(self, value):
+        self.value = value
+
+    def __enter__(self):
+        return self.value.__enter__()
+
+    def __exit__(self, etype, value, traceback):
+        error = self.value.__exit__(etype, value, traceback)
+        if etype == self.Break:
+            return True
+
+        return error
+
 class Log:
     COLOR_NONE = '\033[0m'
     COLOR_RED = '\033[31;1m'
@@ -98,6 +115,37 @@ class Log:
             return self.push(obj, Log.COLOR_MAGENTA)
         else:
             return self.wrap(obj, Log.COLOR_MAGENTA)
+
+class CrossCompiler:
+    def __init__(self, arch):
+        self.prefix = None
+        self.path = None
+
+        filename = os.path.expanduser('~/.cross-compile')
+
+        with open(filename, 'r') as fobj:
+            for line in fobj:
+                if line.startswith('#'):
+                    continue
+
+                key, value = line.split(':', 1)
+
+                if key == 'path':
+                    value = os.path.expandvars(value.strip())
+
+                    if self.path:
+                        self.path = ':'.join([self.path, value])
+                    else:
+                        self.path = value
+
+                    continue
+
+                if key == arch:
+                    self.prefix = value.strip()
+                    self.arch = key
+                    break
+            else:
+                raise Exception('foobar')
 
 class Remote:
     def __init__(self, name, data):
@@ -185,6 +233,65 @@ class Branch:
     def __str__(self):
         return self.name
 
+    def build(self, repo, build, source, output, jobs, log, verbose = False):
+        arch, config = build.name.split('/')
+        build_log = os.path.join(output, 'build.log')
+        extra_args = []
+
+        if not verbose:
+            print('building %s for %s...' % (log.magenta(self),
+                                             log.blue(build)),
+                                            end = '')
+            sys.stdout.flush()
+        else:
+            print('building %s for %s...' % (log.magenta(self),
+                                             log.blue(build)))
+            print('  jobs: %u' % jobs)
+            print('  output: %s' % output)
+            print('  architecture: %s' % arch)
+            print('  configuration: %s' % config)
+
+        os.makedirs(output, exist_ok = True)
+        cross_compile = CrossCompiler(arch)
+
+        env = os.environ.copy()
+        path = ':'.join([env['PATH'], cross_compile.path])
+        env.update({
+            'ARCH': cross_compile.arch,
+            'CROSS_COMPILE': cross_compile.prefix,
+            'KBUILD_OUTPUT': output,
+            'PATH': path,
+        })
+
+        # if we're acting on a worktree, make sure to use the worktree as the
+        # source directory for the builds
+        if source:
+            extra_args += [ '-C', source ]
+
+        # check out the branch
+        if source:
+            repo.git.reset('--hard', self.name)
+        else:
+            repo.git.checkout(self.name)
+
+        with fragile(open(build_log, 'w')) as fobj:
+            cmd = ['make', *extra_args, '-j%u' % args.jobs, config ]
+            complete = subprocess.run(cmd, env = env, stdout = fobj,
+                                      stderr = subprocess.STDOUT)
+            if complete.returncode != 0:
+                raise fragile.Break
+
+            cmd = ['make', *extra_args, '-j%u' % args.jobs ]
+            complete = subprocess.run(cmd, env = env, stdout = fobj,
+                                      stderr = subprocess.STDOUT)
+            if complete.returncode != 0:
+                raise fragile.Break
+
+        if complete.returncode == 0:
+            print(log.green('done'))
+        else:
+            print(log.red('failed'))
+
     def checkout(self, repo, dry_run = False):
         print('checking out %s...' % self.name)
 
@@ -195,6 +302,16 @@ class Branch:
             #repo.head.reference = branch
 
             #repo.head.reset(index = True, working_tree = True)
+
+    def filter(self, remotes = []):
+        branches = []
+
+        if remotes:
+            for branch in self.branches:
+                if branch.remote in remotes:
+                    branches.append(branch)
+
+        return branches
 
     def reset(self, repo, branch, dry_run = False):
         if branch.name in repo.tags:
@@ -385,6 +502,32 @@ class Branch:
         for dependency in self.branches:
             dependency.dump(indent + 2, output = output)
 
+class Build:
+    def __init__(self, tree, name, data):
+        self.tree = tree
+        self.name = name
+        self.data = data
+
+        self.branches = []
+        self.builds = []
+
+        if not 'branches' in data:
+            for name, build in data.items():
+                build = Build(tree, '%s/%s' % (self.name, name), build)
+                self.builds.append(build)
+        else:
+            remotes = []
+
+            for remote in data['branches']['remotes']:
+                remote = tree.find_remote(remote)
+                remotes.append(remote)
+
+            for branch in tree.filter(remotes = remotes):
+                self.branches.append(branch)
+
+    def __str__(self):
+        return self.name
+
 class Tree:
     def __init__(self, data):
         self.data = data
@@ -392,6 +535,7 @@ class Tree:
         self.remotes = []
         self.targets = []
         self.branches = []
+        self.builds = []
 
         for name, remote in data['remotes'].items():
             remote = Remote(name, remote)
@@ -404,6 +548,11 @@ class Tree:
         for name, branch in data['branches'].items():
             branch = Branch(self, name, branch)
             self.branches.append(branch)
+
+        for name, build in data['builds'].items():
+            build = Build(self, name, build)
+            self.builds.extend(build.builds)
+            self.builds.append(build)
 
     def __iter__(self):
         return iter(self.branches)
@@ -440,6 +589,17 @@ class Tree:
         for branch in self.branches:
             branch.dump(indent = indent + 2, output = output)
 
+    def filter(self, remotes = []):
+        result = []
+
+        if remotes:
+            for branch in self:
+                branches = branch.filter(remotes)
+                result.extend(branches)
+                result.append(branch)
+
+        return result
+
 def load_tree():
     topdir = os.path.dirname(sys.argv[0])
     filename = os.path.join(topdir, 'tegra-branches.yaml')
@@ -464,6 +624,78 @@ class Command:
     @classmethod
     def run(cls, args):
         pass
+
+class CommandBuild(Command):
+    name = 'build'
+    help = 'build branches'
+
+    @classmethod
+    def setup(cls, parser):
+        super().setup(parser)
+        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+                            help = 'names of branches to build')
+        parser.add_argument('-c', '--color', action = 'store_true',
+                            default = True)
+        parser.add_argument('--no-color', action = 'store_false',
+                            dest = 'color', help = 'disable log coloring')
+        parser.add_argument('-j', '--jobs', type = int, default = 1,
+                            help = 'number of parallel jobs to run')
+        parser.add_argument('-k', '--keep', action = 'store_true',
+                            help = 'do not clean up worktree')
+        parser.add_argument('-o', '--output', help = 'build output directory')
+        parser.add_argument('-v', '--verbose', action = 'store_true',
+                            help = 'increase verbosity')
+        parser.add_argument('-w', '--worktree', help = 'worktree directory')
+
+    @classmethod
+    def run(cls, args):
+        log = Log(args.color)
+        repo = git.Repo('.')
+        tree = load_tree()
+
+        if args.worktree:
+            worktree = os.path.abspath(args.worktree)
+        else:
+            worktree = None
+
+        if not args.output:
+            if not worktree:
+                output = os.path.join(os.getcwd(), 'build')
+            else:
+                output = os.path.join(worktree, 'build')
+        else:
+                output = os.path.abspath(args.output)
+
+        if worktree:
+            print('creating worktree %s' % worktree)
+            try:
+                repo.git.worktree('add', '--detach', worktree)
+            except git.exc.GitCommandError as e:
+                # XXX find a better way to deal with this
+                if not args.keep and e.stderr.endswith('already exists'):
+                    raise e
+
+            repo = git.Repo(worktree)
+
+        print('output directory: %s' % output)
+
+        for build in tree.builds:
+            parts = build.name.split('/')
+            build_directory = os.path.join(output, *parts)
+
+            for branch in build.branches:
+                branch_name = '-'.join(branch.name.split('/'))
+                branch_directory = os.path.join(build_directory, branch_name)
+
+                if args.branches and branch.name not in args.branches:
+                    continue
+
+                branch.build(repo, build, worktree, branch_directory,
+                             args.jobs, log, args.verbose)
+
+        if worktree and not args.keep:
+            repo = git.Repo('.')
+            repo.git.worktree('remove', worktree)
 
 class CommandMerge(Command):
     name = 'merge'
@@ -578,6 +810,7 @@ class CommandTag(Command):
                        dry_run = args.dry_run)
 
 commands = [
+    CommandBuild,
     CommandMerge,
     CommandPush,
     CommandRequestPull,
