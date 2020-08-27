@@ -59,131 +59,64 @@ branches:
   for-next:
     remote: tegra
     dependencies:
-      v5.7-rc1:
+      v5.8-rc1:
         remote: origin
 
-      for-5.7/arm64/defconfig:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.7-rc1:
-            remote: origin
-
-      for-5.7/clk-fixes:
+      for-5.9/clk:
         remote: tegra
         target: clk
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-      for-5.8/clk:
-        remote: tegra
-        target: clk
-        dependencies:
-          v5.7-rc1:
-            remote: origin
-
-      for-5.8/cpufreq:
+      for-5.9/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-      for-5.8/cpuidle:
+      for-5.9/firmware:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-      for-5.8/dt-bindings:
+      for-5.9/memory:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-      for-5.8/i2c:
-        remote: tegra
-        target: i2c
-        dependencies:
-          v5.7-rc4:
-            remote: origin
-
-      for-5.8/of:
+      for-5.9/soc:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-      for-5.8/firmware:
+      for-5.9/arm/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-      for-5.8/media:
+      for-5.9/arm/defconfig:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
 
-          for-5.8/dt-bindings:
-            remote: tegra
-
-      for-5.8/memory:
+      for-5.9/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.7-rc1:
+          v5.8-rc1:
             remote: origin
-
-          for-5.8/dt-bindings:
-            remote: tegra
-
-          for-5.8/of:
-            remote: tegra
-
-          for-5.8/clk:
-            remote: tegra
-
-      for-5.8/soc:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.7-rc1:
-            remote: origin
-
-      for-5.8/arm/core:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.7-rc1:
-            remote: origin
-
-          for-5.8/firmware:
-            remote: tegra
-
-      for-5.8/arm/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.7-rc1:
-            remote: origin
-
-      for-5.8/arm64/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.7-rc1:
-            remote: origin
-
-          for-5.8/dt-bindings:
-            remote: tegra
 
 #  for-5.7/work:
 #    remote: github
