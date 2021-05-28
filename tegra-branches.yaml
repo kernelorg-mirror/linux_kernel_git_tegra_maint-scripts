@@ -53,58 +53,79 @@ targets:
       - linux-usb@vger.kernel.org
       - linux-tegra@vger.kernel.org
     addressee: Greg, Felipe
+  phy:
+    tag-prefix: tegra-
+    to:
+      - Kishon Vijay Abraham I <kishon@ti.com>
+      - Vinod Koul <vkoul@kernel.org>
+    cc:
+      - linux-phy@lists.infradead.org
+    addressee: Kishon, Vinod
 
 # local branches
 branches:
   for-next:
     remote: tegra
     dependencies:
-      v5.11-rc1:
+      v5.12-rc2:
         remote: origin
 
-      for-5.12/arm/core:
+      for-5.13/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.11-rc1:
+          v5.12-rc2:
             remote: origin
 
-      for-5.12/dt-bindings:
+      for-5.13/clk:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.11-rc1:
+          v5.12-rc2:
             remote: origin
 
-      for-5.12/arm/dt:
+      for-5.13/soc:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.11-rc1:
+          v5.12-rc2:
             remote: origin
 
-      for-5.12/arm/defconfig:
+      for-5.13/phy:
         remote: tegra
-        target: arm-soc
+        target: phy
         dependencies:
-          v5.11-rc1:
+          v5.12-rc2:
             remote: origin
 
-      for-5.12/arm64/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.11-rc1:
-            remote: origin
-
-          for-5.12/dt-bindings:
+          for-5.13/clk:
             remote: tegra
 
-      for-5.12/arm64/defconfig:
+          for-5.13/soc:
+            remote: tegra
+
+      for-5.13/usb:
+        remote: tegra
+        target: phy
+        dependencies:
+          v5.12-rc2:
+            remote: origin
+
+          for-5.13/phy:
+            remote: tegra
+
+      for-5.13/arm/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.11-rc1:
+          v5.12-rc2:
+            remote: origin
+
+      for-5.13/arm64/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.12-rc2:
             remote: origin
 
 #  for-5.7/work:
