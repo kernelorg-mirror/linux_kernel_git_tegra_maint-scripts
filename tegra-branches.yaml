@@ -72,87 +72,63 @@ branches:
   for-next:
     remote: tegra
     dependencies:
-      v5.13-rc1:
+      v5.14-rc1:
         remote: origin
 
-      for-5.14/clk:
+      # fixes for v5.14
+      for-5.14/arm64/dt:
+        remote: tegra
+        dependencies:
+          v5.13-rc1:
+            remote: origin
+
+      for-5.15/dt-bindings:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.14-rc1:
+            remote: origin
+
+      for-5.15/firmware:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.14-rc1:
+            remote: origin
+
+      for-5.15/soc:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.14-rc1:
+            remote: origin
+
+      for-5.15/clk:
         remote: tegra
         target: clk
         dependencies:
-          v5.13-rc1:
-            remote: origin
-
-      for-5.14/regulator:
-        remote: tegra
-        target: regulator
-        dependencies:
-          v5.13-rc1:
-            remote: origin
-
-      for-5.14/phy:
-        remote: tegra
-        target: phy
-        dependencies:
-          v5.13-rc1:
-            remote: origin
-
-      for-5.14/usb:
-        remote: tegra
-        target: usb
-        dependencies:
-          for-5.14/phy:
+          for-5.15/soc:
             remote: tegra
 
-      for-5.14/dt-bindings:
+      for-5.15/arm/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.13-rc1:
+          v5.14-rc1:
             remote: origin
 
-      for-5.14/soc:
+      for-5.15/arm/defconfig:
         remote: tegra
         target: arm-soc
         dependencies:
-          for-5.14/regulator:
-            remote: tegra
-
-      for-5.14/firmware:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.13-rc1:
+          v5.14-rc1:
             remote: origin
 
-      for-5.14/memory:
+      for-5.15/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          for-5.14/clk:
-            remote: tegra
-
-          for-5.14/soc:
-            remote: tegra
-
-      for-5.14/arm/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.13-rc1:
-            remote: origin
-
-      for-5.14/arm/defconfig:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.13-rc1:
-            remote: origin
-
-      for-5.14/arm64/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.13-rc1:
+          v5.14-rc1:
             remote: origin
 
 #  for-5.7/work:
