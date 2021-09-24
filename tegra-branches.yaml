@@ -72,63 +72,14 @@ branches:
   for-next:
     remote: tegra
     dependencies:
-      v5.14-rc1:
+      v5.15-rc1:
         remote: origin
 
-      # fixes for v5.14
-      for-5.14/arm64/dt:
-        remote: tegra
-        dependencies:
-          v5.13-rc1:
-            remote: origin
-
-      for-5.15/dt-bindings:
+      for-5.16/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.14-rc1:
-            remote: origin
-
-      for-5.15/firmware:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.14-rc1:
-            remote: origin
-
-      for-5.15/soc:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.14-rc1:
-            remote: origin
-
-      for-5.15/clk:
-        remote: tegra
-        target: clk
-        dependencies:
-          for-5.15/soc:
-            remote: tegra
-
-      for-5.15/arm/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.14-rc1:
-            remote: origin
-
-      for-5.15/arm/defconfig:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.14-rc1:
-            remote: origin
-
-      for-5.15/arm64/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.14-rc1:
+          v5.15-rc1:
             remote: origin
 
 #  for-5.7/work:
