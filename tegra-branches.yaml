@@ -75,7 +75,60 @@ branches:
       v5.15-rc1:
         remote: origin
 
+      for-5.16/clk:
+        remote: tegra
+        target: clk
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+
+      for-5.16/dt-bindings:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+
+      for-5.16/firmware:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+
+      for-5.16/soc:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+
+      for-5.16/cpuidle:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+          for-5.16/clk:
+            remote: tegra
+          for-5.16/soc:
+            remote: tegra
+
+      for-5.16/arm/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+
       for-5.16/arm64/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.15-rc1:
+            remote: origin
+
+      for-5.16/arm64/defconfig:
         remote: tegra
         target: arm-soc
         dependencies:
