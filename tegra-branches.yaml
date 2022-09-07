@@ -79,70 +79,83 @@ branches:
   for-next:
     remote: tegra
     dependencies:
-      v5.18-rc1:
+      v5.19-rc1:
         remote: origin
 
-      for-5.19/clk:
-        remote: tegra
-        target: clk
-        dependencies:
-          v5.18-rc1:
-            remote: origin
+      #for-5.20/clk:
+      #  remote: tegra
+      #  target: clk
+      #  dependencies:
+      #    v5.19-rc1:
+      #      remote: origin
 
-      for-5.19/memory:
-        remote: tegra
-        target: memory
-        dependencies:
-          v5.18-rc1:
-            remote: origin
-
-      for-5.19/arm/core:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.18-rc1:
-            remote: origin
-
-      for-5.19/soc:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.18-rc1:
-            remote: origin
-
-      for-5.19/dt-bindings:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.18-rc1:
-            remote: origin
-
-      #for-5.19/arm/dt:
+      #for-5.20/arm/core:
       #  remote: tegra
       #  target: arm-soc
       #  dependencies:
-      #    v5.18-rc1:
+      #    v5.19-rc1:
       #      remote: origin
 
-      for-5.19/arm/defconfig:
+      for-5.20/soc:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.18-rc1:
+          v5.19-rc1:
             remote: origin
 
-      for-5.19/arm64/dt:
+      for-5.20/firmware:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.18-rc1:
+          v5.19-rc1:
             remote: origin
 
-      for-5.19/arm64/defconfig:
+      for-5.20/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.18-rc1:
+          v5.19-rc1:
+            remote: origin
+
+      for-5.20/memory:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.19-rc1:
+            remote: origin
+
+          for-5.20/dt-bindings:
+            remote: tegra
+
+      for-5.20/arm/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.19-rc1:
+            remote: origin
+
+      #for-5.20/arm/defconfig:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    v5.19-rc1:
+      #      remote: origin
+
+      for-5.20/arm64/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.19-rc1:
+            remote: origin
+
+          for-5.20/dt-bindings:
+            remote: tegra
+
+      for-5.20/arm64/defconfig:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v5.19-rc1:
             remote: origin
 
 #  for-5.7/work:
