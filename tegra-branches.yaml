@@ -79,7 +79,7 @@ branches:
   for-next:
     remote: tegra
     dependencies:
-      v5.19-rc1:
+      v6.0-rc1:
         remote: origin
 
       #for-5.20/clk:
@@ -96,43 +96,50 @@ branches:
       #    v5.19-rc1:
       #      remote: origin
 
-      for-5.20/soc:
+      for-6.1/soc:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.19-rc1:
+          v6.0-rc1:
             remote: origin
 
-      for-5.20/firmware:
+      for-6.1/cbb:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.19-rc1:
+          v6.0-rc1:
             remote: origin
 
-      for-5.20/dt-bindings:
+      for-6.1/firmware:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.19-rc1:
+          v6.0-rc1:
             remote: origin
 
-      for-5.20/memory:
+      for-6.1/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.19-rc1:
+          v6.0-rc1:
             remote: origin
 
-          for-5.20/dt-bindings:
-            remote: tegra
+      #for-5.20/memory:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    v5.19-rc1:
+      #      remote: origin
 
-      for-5.20/arm/dt:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v5.19-rc1:
-            remote: origin
+      #    for-5.20/dt-bindings:
+      #      remote: tegra
+
+      #for-5.20/arm/dt:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    v5.19-rc1:
+      #      remote: origin
 
       #for-5.20/arm/defconfig:
       #  remote: tegra
@@ -141,21 +148,21 @@ branches:
       #    v5.19-rc1:
       #      remote: origin
 
-      for-5.20/arm64/dt:
+      for-6.1/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.19-rc1:
+          v6.0-rc1:
             remote: origin
 
-          for-5.20/dt-bindings:
+          for-6.1/dt-bindings:
             remote: tegra
 
-      for-5.20/arm64/defconfig:
+      for-6.1/arm64/defconfig:
         remote: tegra
         target: arm-soc
         dependencies:
-          v5.19-rc1:
+          v6.0-rc1:
             remote: origin
 
 #  for-5.7/work:
