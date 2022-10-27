@@ -173,7 +173,16 @@ def compile(filename):
     #return '\n'.join(lines)
     return result.stdout
 
+def parent_nodes(tree, parent = None):
+    for item in tree:
+        if isinstance(item, Node):
+            item.parent = parent
+            parent_nodes(item.children, item)
+
 def load(filename):
     dts = compile(filename)
 
-    return DeviceTree.parse_string(dts, parseAll = True)
+    ast = DeviceTree.parse_string(dts, parseAll = True)
+    parent_nodes(ast)
+
+    return ast

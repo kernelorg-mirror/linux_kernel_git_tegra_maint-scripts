@@ -3,12 +3,6 @@
 import pyparsing as pp, sys
 from lib import devicetree
 
-def parent_nodes(tree, parent = None):
-    for item in tree:
-        if isinstance(item, devicetree.Node):
-            item.parent = parent
-            parent_nodes(item.children, item)
-
 def dump_node(node, indent = 0):
     prefix = ' ' * indent
     print('%snode: %s' % (prefix, node))
