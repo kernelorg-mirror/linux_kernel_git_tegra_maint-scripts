@@ -22,8 +22,11 @@ def check_node(filename, node, indent = 0):
         if child.unit_address is not None:
             if prev is not None:
                 if child.unit_address < prev.unit_address:
-                    print('ERROR: %s: %s < %s' % (filename, child, prev))
-                    break
+                    if prev.name == 'memory' and prev.unit_address == 0x80000000:
+                        if False:
+                            print('WARNING: %s: %s < %s' % (filename, child, prev))
+                    else:
+                        print('ERROR: %s: %s < %s' % (filename, child, prev))
 
             prev = child
 
@@ -31,6 +34,8 @@ def check_node(filename, node, indent = 0):
         check_node(filename, child, indent + 2)
 
 #dts = devicetree.compile(sys.argv[1])
+#with open(sys.argv[1] + '.tmp', 'w') as fobj:
+#    fobj.write(dts)
 
 #with open(sys.argv[1], 'r') as fobj:
 #    dts = fobj.read()
