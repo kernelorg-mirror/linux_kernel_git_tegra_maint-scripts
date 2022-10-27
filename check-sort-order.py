@@ -13,7 +13,7 @@ def dump_node(node, indent = 0):
     for child in node.children:
         dump_node(child, indent + 2)
 
-def check_node(node, indent = 0):
+def check_node(filename, node, indent = 0):
     #prefix = ' ' * indent
     #print('%s%s' % (prefix, node))
     prev = None
@@ -22,13 +22,13 @@ def check_node(node, indent = 0):
         if child.unit_address is not None:
             if prev is not None:
                 if child.unit_address < prev.unit_address:
-                    print('ERROR: %s < %s' % (child, prev))
+                    print('ERROR: %s: %s < %s' % (filename, child, prev))
                     break
 
             prev = child
 
     for child in node.children:
-        check_node(child, indent + 2)
+        check_node(filename, child, indent + 2)
 
 #dts = devicetree.compile(sys.argv[1])
 
@@ -40,20 +40,22 @@ def check_node(node, indent = 0):
 #    print('%3d: %s' % (no, line))
 
 try:
-    #ast = devicetree.DeviceTree.parseString(dts, parseAll = True)
-    #ast = devicetree.DeviceTree.parseFile(sys.argv[1], parseAll = True)
-    ast = devicetree.load(sys.argv[1])
-    #ast.pprint()
+    for filename in sys.argv[1:]:
+        #print('parsing %s...' % filename)
+        #ast = devicetree.DeviceTree.parseString(dts, parseAll = True)
+        #ast = devicetree.DeviceTree.parseFile(filename, parseAll = True)
+        ast = devicetree.load(filename)
+        #ast.pprint()
 
-    parent_nodes(ast)
+        #for node in ast:
+        #    if isinstance(node, devicetree.Node):
+        #        dump_node(node)
 
-    #for node in ast:
-    #    if isinstance(node, devicetree.Node):
-    #        dump_node(node)
+        #print('checking %s...' % filename)
 
-    for node in ast:
-        if isinstance(node, devicetree.Node):
-            check_node(node)
+        for node in ast:
+            if isinstance(node, devicetree.Node):
+                check_node(filename, node)
 
 except pp.ParseException as e:
     print(e.line)
