@@ -88,13 +88,28 @@ class Node:
         self.children = children
 
         if address:
-            self.unit_address = int(address)
+            self.unit_address = 0
+
+            for cell in address.split(','):
+                self.unit_address = (self.unit_address << 32) + int(cell)
         else:
             self.unit_address = None
 
     def __str__(self):
         if self.unit_address is not None:
-            return '%s@%x' % (self.name, self.unit_address)
+            unit_address = self.unit_address
+            cells = []
+
+            while True:
+                cells.append(unit_address & 0xffffffff)
+                unit_address >>= 32
+
+                if unit_address == 0:
+                    break
+
+            unit_address = ','.join([ '%x' % x for x in reversed(cells) ])
+
+            return '%s@%s' % (self.name, unit_address)
         else:
             return '%s' % self.name
 
