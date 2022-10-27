@@ -8,24 +8,24 @@ source_position = pp.Literal('#') + pp.pyparsing_common.integer('line_number') +
         pp.dbl_quoted_string('filename') + pp.Opt(pp.pyparsing_common.integer)
 
 node_name = pp.Word(pp.alphanums + ',.-+_') ^ pp.Literal('/')
-unit_address = pp.pyparsing_common.hex_integer
-node_handle = node_name('name') + pp.Optional(pp.Literal('@') + unit_address('address'))
+unit_address = pp.delimited_list(pp.pyparsing_common.hex_integer, combine = True)
+node_handle = node_name('name') + pp.Opt(pp.Literal('@') + unit_address('address'))
 
 property_name = pp.Word(pp.alphanums + ',.-_+?#')
 
-string = pp.dbl_quoted_string
-include_directive = pp.Literal('/include/') + pp.dbl_quoted_string
-generic_directive = pp.QuotedString(quoteChar = '/', unquoteResults = False) + \
-        pp.Optional(string ^ property_name) + \
-        pp.Literal(';').suppress()
-directive = include_directive ^ generic_directive
+label = pp.Word(pp.alphanums + '_').setResultsName('label')
+label_creation = pp.Combine(label + pp.Literal(':'))
 
-string = pp.dbl_quoted_string
-stringlist = pp.delimited_list(string)
+node_path = pp.Combine(pp.Literal('/') + pp.delimitedList(node_handle, delim = '/', combine = True))
+node_path.set_results_name('path')
+
+label_reference = pp.Literal('&').suppress() + label
+path_reference = pp.Literal('&{').suppress() + node_path + pp.Literal('}').suppress()
+reference = label_reference ^ path_reference
 
 integer_suffix = pp.Literal('U') ^ pp.Literal('L') ^ pp.Literal('UL')
 integer = (pp.pyparsing_common.integer ^ (pp.Literal('0x').suppress() + pp.pyparsing_common.hex_integer)) + \
-        pp.Optional(integer_suffix.suppress())
+        pp.Opt(integer_suffix.suppress())
 
 operator = pp.oneOf('~ ! * / + - << >> < <= > >= == != & ^ | && ||')
 arith_expr = pp.Forward()
@@ -33,25 +33,36 @@ ternary_element = arith_expr ^ integer
 ternary_expr = ternary_element + pp.Literal('?') + ternary_element + pp.Literal(':') + ternary_element
 arith_expr << pp.nestedExpr(content = (pp.OneOrMore(operator ^ integer) ^ ternary_expr))
 
-label = pp.Word(pp.alphanums + '_').setResultsName('label')
-label_creation = pp.Combine(label + pp.Literal(':'))
-label_reference = pp.Literal('&').suppress() + label
-reference = label_reference
-
 cell_array = pp.Literal('<').suppress() + \
         pp.ZeroOrMore(integer ^ reference ^ arith_expr) + \
         pp.Literal('>').suppress()
+hexbyte = pp.Word(pp.hexnums, exact = 2)
+hexbyte.set_name('hex byte')
+hexbyte.set_parse_action(pp.token_map(int, 16))
+bytestring = pp.Literal('[').suppress() + \
+        (pp.OneOrMore(hexbyte ^ label_creation.suppress())) + \
+        pp.Literal(']').suppress()
+
+include_directive = pp.Literal('/include/') + pp.dbl_quoted_string
+bits_directive = pp.Literal('/bits/') + pp.pyparsing_common.integer + cell_array
+generic_directive = pp.QuotedString(quoteChar = '/', unquoteResults = False) + \
+        pp.Opt(pp.dbl_quoted_string ^ property_name ^ node_name ^ reference) + \
+        pp.Literal(';').suppress()
+property_directive = include_directive ^ bits_directive
+directive = include_directive ^ bits_directive ^ generic_directive
+
+stringlist = pp.delimited_list(pp.dbl_quoted_string)
 
 property_values = pp.Forward()
-#property_values = pp.delimitedList(property_values ^ cell_array ^ stringlist ^ reference)
-property_values << pp.delimitedList(cell_array ^ stringlist ^ reference)
-property_assignment = property_name('name') + pp.Optional(pp.Literal('=').suppress() + \
+property_values << pp.delimitedList(cell_array ^ stringlist ^ reference ^ bits_directive ^ bytestring)
+property_assignment = property_name('name') + pp.Opt(pp.Literal('=').suppress() + \
         property_values).setResultsName('value') + pp.Literal(';').suppress()
 
-node_opener = pp.Optional(label_creation) + node_handle + pp.Literal('{').suppress()
+node_opener = pp.Opt(label_creation) + node_handle + pp.Literal('{').suppress()
+node_reference_opener = reference + pp.Literal('{').suppress()
 node_closer = pp.Literal('}').suppress() + pp.Literal(';').suppress()
 node_definition = pp.Forward()
-node_definition << (node_opener) + \
+node_definition << (node_opener ^ node_reference_opener) + \
         pp.ZeroOrMore(property_assignment ^ directive ^ node_definition ^ source_position) + \
         node_closer
 
