@@ -233,7 +233,8 @@ class Branch:
     def __str__(self):
         return self.name
 
-    def build(self, repo, build, source, output, jobs, log, verbose = False):
+    def build(self, repo, build, source, output, jobs, log, verbose = False, checks = 0,
+              warnings = 0):
         arch, config = build.name.split('/')
         build_log = os.path.join(output, 'build.log')
         extra_args = []
@@ -268,7 +269,41 @@ class Branch:
         if source:
             extra_args += [ '-C', source ]
 
-        # check out the branch
+        if checks:
+            extra_args += [ 'C=%u' % checks ]
+
+        if warnings:
+            extra_args += [ 'W=%u' % warnings ]
+
+        # check out the base branch
+        base = self.branches[0]
+
+        if source:
+            repo.git.reset('--hard', base.name)
+        else:
+            repo.git.checkout(base.name)
+
+        # ... and build it
+        with fragile(open(build_log, 'w')) as fobj:
+            cmd = ['make', *extra_args, '-j%u' % args.jobs, config ]
+
+            if verbose:
+                print('  environment:', env)
+                print('  command:', cmd)
+
+            complete = subprocess.run(cmd, env = env, stdout = fobj,
+                                      stderr = subprocess.STDOUT)
+            if complete.returncode != 0:
+                raise fragile.Break
+
+            cmd = ['make', *extra_args, '-j%u' % args.jobs ]
+            complete = subprocess.run(cmd, env = env, stdout = fobj,
+                                      stderr = subprocess.STDOUT)
+            if complete.returncode != 0:
+                raise fragile.Break
+
+        # check out the branch and build it to get a more sensible
+        # warnings/checks diff
         if source:
             repo.git.reset('--hard', self.name)
         else:
@@ -276,6 +311,11 @@ class Branch:
 
         with fragile(open(build_log, 'w')) as fobj:
             cmd = ['make', *extra_args, '-j%u' % args.jobs, config ]
+
+            if verbose:
+                print('  environment:', env)
+                print('  command:', cmd)
+
             complete = subprocess.run(cmd, env = env, stdout = fobj,
                                       stderr = subprocess.STDOUT)
             if complete.returncode != 0:
@@ -638,6 +678,7 @@ class CommandBuild(Command):
                             default = True)
         parser.add_argument('--no-color', action = 'store_false',
                             dest = 'color', help = 'disable log coloring')
+        parser.add_argument('-C', '--checks', action = 'count', help = 'enable checks')
         parser.add_argument('-j', '--jobs', type = int, default = 1,
                             help = 'number of parallel jobs to run')
         parser.add_argument('-k', '--keep', action = 'store_true',
@@ -646,6 +687,7 @@ class CommandBuild(Command):
         parser.add_argument('-v', '--verbose', action = 'store_true',
                             help = 'increase verbosity')
         parser.add_argument('-w', '--worktree', help = 'worktree directory')
+        parser.add_argument('-W', '--warnings', action = 'count', help = 'enable extra warnings')
 
     @classmethod
     def run(cls, args):
@@ -690,8 +732,8 @@ class CommandBuild(Command):
                 if args.branches and branch.name not in args.branches:
                     continue
 
-                branch.build(repo, build, worktree, branch_directory,
-                             args.jobs, log, args.verbose)
+                branch.build(repo, build, worktree, branch_directory, args.jobs, log,
+                             args.verbose, checks = args.checks, warnings = args.warnings)
 
         if worktree and not args.keep:
             repo = git.Repo('.')
