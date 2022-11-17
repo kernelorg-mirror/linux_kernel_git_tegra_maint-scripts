@@ -46,7 +46,7 @@ bytestring = pp.Literal('[').suppress() + \
 include_directive = pp.Literal('/include/') + pp.dbl_quoted_string
 bits_directive = pp.Literal('/bits/') + pp.pyparsing_common.integer + cell_array
 generic_directive = pp.QuotedString(quoteChar = '/', unquoteResults = False) + \
-        pp.Opt(pp.dbl_quoted_string ^ property_name ^ node_name ^ reference) + \
+        pp.Opt(pp.dbl_quoted_string ^ property_name ^ node_handle ^ reference) + \
         pp.Literal(';').suppress()
 property_directive = include_directive ^ bits_directive
 directive = include_directive ^ bits_directive ^ generic_directive
@@ -54,7 +54,7 @@ directive = include_directive ^ bits_directive ^ generic_directive
 stringlist = pp.delimited_list(pp.dbl_quoted_string)
 
 property_values = pp.Forward()
-property_values << pp.delimitedList(cell_array ^ stringlist ^ reference ^ bits_directive ^ bytestring)
+property_values << pp.delimitedList(cell_array ^ stringlist ^ reference ^ property_directive ^ bytestring)
 property_assignment = property_name('name') + pp.Opt(pp.Literal('=').suppress() + \
         property_values).setResultsName('value') + pp.Literal(';').suppress()
 
