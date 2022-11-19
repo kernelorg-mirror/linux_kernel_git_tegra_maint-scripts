@@ -17,6 +17,20 @@ def dump_node(node, indent = 0):
     for child in node.children:
         dump_node(child, indent + 2)
 
+def check_duplicate(filename, node, indent = 0):
+    for child in node.children:
+        for sibling in node.children:
+            if child == sibling:
+                continue
+
+            if child.name == sibling.name:
+                if child.unit_address and sibling.unit_address and \
+                   child.unit_address == sibling.unit_address:
+                    print('ERROR: duplicate node: %s == %s' % (child, sibling))
+
+                if child.unit_address is None and sibling.unit_address is None:
+                    print('ERROR: duplicate node: %s == %s' % (child, sibling))
+
 def check_node(filename, node, indent = 0):
     #prefix = ' ' * indent
     #print('%s%s' % (prefix, node))
@@ -114,6 +128,7 @@ try:
 
             for node in ast:
                 if isinstance(node, devicetree.Node):
+                    check_duplicate(filename, node)
                     check_node(filename, node)
 
 except pp.ParseException as e:
