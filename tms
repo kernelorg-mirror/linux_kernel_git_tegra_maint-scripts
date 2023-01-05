@@ -214,7 +214,11 @@ class Branch:
 
         self.remote = None
         self.target = None
+        self.merged = False
         self.branches = []
+
+        if 'merged' in data:
+            self.merged = data['merged']
 
         if 'remote' in data:
             self.remote = tree.find_remote(data['remote'])
@@ -393,7 +397,7 @@ class Branch:
         tags = []
 
         for branch in self.branches:
-            if branch.target:
+            if branch.target and not branch.merged:
                 if targets and branch.target.name not in targets:
                     continue
             else:
@@ -426,7 +430,7 @@ class Branch:
         buckets = {}
 
         for branch in self.branches:
-            if branch.target:
+            if branch.target and not branch.merged:
                 if targets and branch.target.name not in targets:
                     continue
 
@@ -510,7 +514,7 @@ class Branch:
 
     def tag(self, repo, prefix, targets = None, dry_run = False):
         for branch in self.branches:
-            if branch.target:
+            if branch.target and not branch.merged:
                 if targets and branch.target.name not in targets:
                     continue
 
