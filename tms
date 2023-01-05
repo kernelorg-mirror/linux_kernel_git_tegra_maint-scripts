@@ -404,7 +404,7 @@ class Branch:
                 message = 'Merge branch %s into %s' % (branch.name, self.name)
                 repo.git.merge(branch.name, m = message, no_ff = True)
 
-    def push(self, repo, push_tags = False, targets = None, dry_run = False):
+    def push(self, repo, push_tags = False, targets = None, iteration = 1, dry_run = False):
         if not self.remote:
             raise Exception('cannot push branch %s without remote' % self)
 
@@ -423,7 +423,13 @@ class Branch:
 
             if push_tags:
                 tag_prefix = branch.target.prefix
-                tag = '%s%s' % (tag_prefix, branch.name.replace('/', '-'))
+
+                if iteration > 1:
+                    suffix = '-v%u' % iteration
+                else:
+                    suffix = ''
+
+                tag = '%s%s%s' % (tag_prefix, branch.name.replace('/', '-'), suffix)
                 tags.append('%s' % tag)
 
         branches.append('%s' % self.name)
@@ -440,7 +446,7 @@ class Branch:
         if status != 0:
             sys.exit(status)
 
-    def request_pull(self, repo, targets = None, dry_run = False):
+    def request_pull(self, repo, targets = None, iteration = 1, dry_run = False):
         git_config = repo.config_reader()
         config = read_dotconfig()
         buckets = {}
@@ -472,12 +478,17 @@ class Branch:
             for index, branch in enumerate(branches, 1):
                 base = branch.branches[0].name
                 prefix = branch.target.prefix
+                suffix = ''
+
+                if iteration > 1:
+                    suffix = '-v%u' % iteration
 
                 release = branch.name.split('/')[0]
                 path = os.path.join('pull-request/%s/%s' % (release, target))
                 os.makedirs(path, exist_ok = True)
 
-                tag = '%s%s' % (prefix, branch.name.replace('/', '-'))
+                tag_name = '%s%s' % (prefix, branch.name.replace('/', '-'))
+                tag = '%s%s' % (tag_name, suffix)
                 subject = repo.tags[tag].tag.message.splitlines()[0]
 
                 firstname = author.split()[0]
@@ -488,10 +499,17 @@ class Branch:
                     # make [GIT PULL index/count] look pretty
                     width = math.ceil(math.log10(count + 1))
 
-                    subject = '[GIT PULL %0*u/%0*u] %s' % (width, index, width,
-                                                           count, subject)
+                    if iteration > 1:
+                        subject = '[GIT PULL v%u %0*u/%0*u] %s' % (iteration, width, index,
+                                                                   width, count, subject)
+                    else:
+                        subject = '[GIT PULL %0*u/%0*u] %s' % (width, index, width,
+                                                               count, subject)
                 else:
-                    subject = '[GIT PULL] %s' % subject
+                    if iteration > 1:
+                        subject = '[GIT PULL v%u] %s' % (iteration, subject)
+                    else:
+                        subject = '[GIT PULL] %s' % subject
 
                 message = email.message.EmailMessage()
                 message['From'] = author
@@ -522,13 +540,17 @@ class Branch:
 
                 message.set_content(content)
 
-                filename = os.path.join(path, '%04u-%s' % (index, tag))
+                if iteration > 1:
+                    filename = os.path.join(path, 'v%u-%04u-%s' % (iteration, index, tag_name))
+                else:
+                    filename = os.path.join(path, '%04u-%s' % (index, tag_name))
+
                 print('writing message to %s' % filename)
 
                 with io.open(filename, 'w') as output:
                     print(message, file = output, end = '')
 
-    def tag(self, repo, prefix, targets = None, dry_run = False):
+    def tag(self, repo, prefix, targets = None, iteration = 1, dry_run = False):
         for branch in self.branches:
             if branch.target and not branch.merged:
                 if targets and branch.target.name not in targets:
@@ -539,7 +561,12 @@ class Branch:
                 else:
                     tag_prefix = prefix
 
-                tag = '%s%s' % (tag_prefix, branch.name.replace('/', '-'))
+                if iteration > 1:
+                    suffix = '-v%u' % iteration
+                else:
+                    suffix = ''
+
+                tag = '%s%s%s' % (tag_prefix, branch.name.replace('/', '-'), suffix)
                 print('  tagging %s as %s' % (branch, tag))
 
                 if tag in repo.tags:
@@ -797,6 +824,9 @@ class CommandPush(Command):
         parser.add_argument('-t', '--target', dest = 'targets',
                             action = 'append', type = str,
                             help = 'list of targets for which to push')
+        parser.add_argument('-v', '--reroll-count', dest = 'iteration',
+                            action = 'store', type = int,
+                            help = 'mark the pull-requests as the <n>-th iteration')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
                             help = 'names of branches to push')
 
@@ -811,7 +841,7 @@ class CommandPush(Command):
 
             print('pushing branch %s...' % branch)
             branch.push(repo, push_tags = args.tags, targets = args.targets,
-                        dry_run = args.dry_run)
+                        iteration = args.iteration, dry_run = args.dry_run)
 
 class CommandRequestPull(Command):
     name = 'request-pull'
@@ -825,6 +855,9 @@ class CommandRequestPull(Command):
         parser.add_argument('-t', '--target', dest = 'targets',
                             action = 'append', type = str,
                             help = 'list of targets for which to request-pull')
+        parser.add_argument('-v', '--reroll-count', dest = 'iteration',
+                            action = 'store', type = int,
+                            help = 'mark the pull-requests as the <n>-th iteration')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
                             help = 'names of branches to tag')
 
@@ -838,7 +871,7 @@ class CommandRequestPull(Command):
                 continue
 
             print('request-pull for %s...' % branch)
-            branch.request_pull(repo, targets = args.targets,
+            branch.request_pull(repo, targets = args.targets, iteration = args.iteration,
                                 dry_run = args.dry_run)
 
 class CommandTag(Command):
@@ -855,6 +888,9 @@ class CommandTag(Command):
         parser.add_argument('-t', '--target', dest = 'targets',
                             action = 'append', type = str,
                             help = 'list of targets for which to tag')
+        parser.add_argument('-v', '--reroll-count', dest = 'iteration',
+                            action = 'store', type = int,
+                            help = 'mark the pull-requests as the <n>-th iteration')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
                             help = 'names of branches to tag')
 
@@ -868,7 +904,7 @@ class CommandTag(Command):
                 continue
 
             print('tagging branch %s...' % branch)
-            branch.tag(repo, args.prefix, targets = args.targets,
+            branch.tag(repo, args.prefix, targets = args.targets, iteration = args.iteration,
                        dry_run = args.dry_run)
 
 commands = [
