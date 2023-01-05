@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import argparse, configparser, email.message, git, io, logging, math, os
+import argparse, binascii, configparser, email.message, git, io, logging, math, os
 import os.path, re, subprocess, sys, yaml
 
 def read_dotconfig():
@@ -351,6 +351,95 @@ class Branch:
             print(log.green('done'))
         else:
             print(log.red('failed'))
+
+    def check_trailers(self, repo, commit, log):
+        def identity(actor):
+            return '%s <%s>' % (actor.name, actor.email)
+
+        def sign_off(actor):
+            return 'Signed-off-by: %s <%s>' % (actor.name, actor.email)
+
+        with repo.config_reader() as config:
+            abbrev = config.get_value('core', 'abbrev', 12)
+
+        signoffs = {
+                'committer': {
+                    'identity': identity(commit.committer),
+                    'present': False,
+                },
+                'author': {
+                    'identity': identity(commit.author),
+                    'present': False,
+                },
+            }
+
+        # skip merge commits
+        if len(commit.parents) > 1:
+            return
+
+        committer = identity(commit.committer)
+        author = identity(commit.author)
+
+        proc = repo.git.execute(['git', 'interpret-trailers', '--parse'], as_process = True,
+                                istream = subprocess.PIPE)
+        stdout, _ = proc.communicate(str(commit.message).encode())
+
+        for trailer in stdout.decode().splitlines():
+            key, value = map(lambda x: x.strip(), trailer.split(':', 1))
+
+            if key == 'Signed-off-by':
+                if value == committer:
+                    signoffs['committer']['present'] = True
+
+                if value == author:
+                    signoffs['author']['present'] = True
+
+        hexsha = binascii.hexlify(commit.binsha).decode()[0:abbrev]
+
+        for key, value in signoffs.items():
+            if not value['present']:
+                print('%s: commit %s ("%s") in branch %s' % (log.red('ERROR', Log.STYLE_BOLD),
+                                                             hexsha, commit.summary, self))
+                print('%s  is missing a Signed-off-by: from its %s %s' % (' ' * 5, key,
+                                                                          value['identity']))
+
+    def check_references(self, repo, commit, log):
+        with repo.config_reader() as config:
+            abbrev = config.get_value('core', 'abbrev', 12)
+
+        proc = repo.git.execute(['git', 'interpret-trailers', '--parse'], as_process = True,
+                                istream = subprocess.PIPE)
+        stdout, _ = proc.communicate(str(commit.message).encode())
+        trailers = []
+
+        for trailer in stdout.decode().splitlines():
+            key, value = map(lambda x: x.strip(), trailer.split(':', 1))
+
+            if key == 'Fixes':
+                match = re.match('([0-9a-f]+) \("(.*)"\)', value)
+                ref, subject = match.group(1, 2)
+
+                branches = repo.git.branch('--contains', ref)
+                for branch in branches.splitlines():
+                    match = re.match('\*?\W+(.*)', branch)
+                    if self.name == match.group(1):
+                        break
+                else:
+                    hexsha = binascii.hexlify(commit.binsha).decode()[0:abbrev]
+                    print('%s: commit %s ("%s") referenced by' % (log.red('ERROR',
+                                                                          style = Log.STYLE_BOLD),
+                                                                  log.yellow(ref), subject))
+                    print('%s  commit %s ("%s")' % (' ' * 5, log.yellow(hexsha), commit.summary))
+                    print('%s  was not found in branch %s' % (' ' * 5, log.green(self)))
+
+    def check(self, repo, log):
+        rev_list = '%s..%s' % (self.branches[0], self)
+
+        print('checking branch %s...' % self)
+
+        for commit in repo.iter_commits(rev_list):
+            self.check_trailers(repo, commit, log)
+            self.check_references(repo, commit, log)
 
     def checkout(self, repo, dry_run = False):
         print('checking out %s...' % self.name)
@@ -786,6 +875,41 @@ class CommandBuild(Command):
             repo = git.Repo('.')
             repo.git.worktree('remove', worktree)
 
+class CommandCheck(Command):
+    name = 'check'
+    help = 'check branches'
+
+    @classmethod
+    def setup(cls, parser):
+        super().setup(parser)
+        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+                            help = 'names of branches to check')
+        parser.add_argument('-c', '--color', action = 'store_true',
+                            default = True)
+        parser.add_argument('--no-color', action = 'store_false',
+                            dest = 'color', help = 'disable log coloring')
+        parser.add_argument('-v', '--verbose', action = 'store_true',
+                            help = 'increase verbosity')
+
+    @classmethod
+    def run(cls, args):
+        log = Log(args.color)
+        repo = git.Repo('.')
+        tree = load_tree()
+
+        branches = []
+
+        for build in tree.builds:
+            for branch in build.branches:
+                if args.branches and branch.name not in args.branches:
+                    continue
+
+                if branch not in branches:
+                    branches.append(branch)
+
+        for branch in branches:
+            branch.check(repo, log)
+
 class CommandMerge(Command):
     name = 'merge'
     help = 'merge branch'
@@ -909,6 +1033,7 @@ class CommandTag(Command):
 
 commands = [
     CommandBuild,
+    CommandCheck,
     CommandMerge,
     CommandPush,
     CommandRequestPull,
