@@ -105,7 +105,7 @@ branches:
 
       for-6.2/clk:
         remote: tegra
-        target: clk
+        target: arm-soc
         dependencies:
           v6.1-rc1:
             remote: origin
@@ -157,6 +157,7 @@ branches:
       for-6.2/arm64/defconfig:
         remote: tegra
         target: arm-soc
+        merged: true
         dependencies:
           v6.1-rc1:
             remote: origin
@@ -168,17 +169,17 @@ branches:
 #        remote: next
 
 builds:
+  arm64:
+    defconfig:
+      branches:
+        remotes:
+          - tegra
   arm:
     tegra_defconfig:
       branches:
         remotes:
           - tegra
     multi_v7_defconfig:
-      branches:
-        remotes:
-          - tegra
-  arm64:
-    defconfig:
       branches:
         remotes:
           - tegra
