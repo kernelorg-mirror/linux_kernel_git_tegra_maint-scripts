@@ -34,87 +34,103 @@ class fragile(object):
         return error
 
 class Log:
-    COLOR_NONE = '\033[0m'
-    COLOR_RED = '\033[31;1m'
-    COLOR_GREEN = '\033[32;1m'
-    COLOR_YELLOW = '\033[33;1m'
-    COLOR_BLUE = '\033[34;1m'
-    COLOR_MAGENTA = '\033[35;1m'
+    ESC = '\033'
+    CSI = ESC + '['
+
+    RESET = CSI + 'm'
+
+    COLOR_NONE = '30'
+    COLOR_RED = '31'
+    COLOR_GREEN = '32'
+    COLOR_YELLOW = '33'
+    COLOR_BLUE = '34'
+    COLOR_MAGENTA = '35'
+
+    STYLE_NONE = '0'
+    STYLE_BOLD = '1'
+    STYLE_DIM = '2'
+    STYLE_ITALIC = '3'
+    STYLE_UNDERLINE = '4'
 
     def __init__(self, colorize = True):
         self.color = Log.COLOR_NONE
+        self.style = Log.STYLE_NONE
         self.colorize = colorize
         self.stack = []
 
-    def push(self, obj, color = None):
+    def push(self, obj, color = COLOR_NONE, style = STYLE_NONE):
         if not self.colorize:
             color = None
+            style = None
 
-        if not color:
+        if color is None and style is None:
             return str(obj)
 
-        self.stack.append(self.color)
+        self.stack.append((self.color, self.style))
         self.color = color
+        self.style = style
 
-        return self.color + str(obj)
+        return Log.CSI + self.style + ';' + self.color + 'm' + str(obj)
 
     def pop(self, obj = None):
         if not self.colorize:
             return str(obj)
 
         if self.stack:
-            self.color = self.stack.prop()
+            self.color, self.style = self.stack.pop()
         else:
             print('ERROR: unbalanced pop()')
             self.color = Log.COLOR_NONE
+            self.style = Log.STYLE_NONE
 
         if obj is not None:
-            return self.color + str(obj)
+            return Log.CSI + self.style + ';' + self.color + 'm' + str(obj)
 
-    def wrap(self, obj, color = None):
+    def wrap(self, obj, color = COLOR_NONE, style = STYLE_NONE):
         if not self.colorize:
             color = None
+            style = None
 
-        if not color:
+        if color is None and style is None:
             return str(obj)
 
-        return color + str(obj) + Log.COLOR_NONE
+        return Log.CSI + style + ';' + color + 'm' + str(obj) + Log.RESET
 
-    def red(self, obj, push = False):
+    def red(self, obj, push = False, style = STYLE_NONE):
         if push:
-            return self.push(obj, Log.COLOR_RED)
+            return self.push(obj, Log.COLOR_RED, style)
         else:
-            return self.wrap(obj, Log.COLOR_RED)
+            return self.wrap(obj, Log.COLOR_RED, style)
 
-    def green(self, obj, push = False):
+    def green(self, obj, push = False, style = STYLE_NONE):
         if push:
-            return self.push(obj, Log.COLOR_GREEN)
+            return self.push(obj, Log.COLOR_GREEN, style)
         else:
-            return self.wrap(obj, Log.COLOR_GREEN)
+            return self.wrap(obj, Log.COLOR_GREEN, style)
 
-    def yellow(self, obj, push = False):
+    def yellow(self, obj, push = False, style = STYLE_NONE):
         if push:
-            return self.push(obj, Log.COLOR_YELLOW)
+            return self.push(obj, Log.COLOR_YELLOW, style)
         else:
-            return self.wrap(obj, Log.COLOR_YELLOW)
+            return self.wrap(obj, Log.COLOR_YELLOW, style)
 
-    def yellow(self, obj, push = False):
+    def yellow(self, obj, push = False, style = STYLE_NONE):
         if push:
-            return self.push(obj, Log.COLOR_YELLOW)
+            return self.push(obj, Log.COLOR_YELLOW, style)
         else:
-            return self.wrap(obj, Log.COLOR_YELLOW)
+            return self.wrap(obj, Log.COLOR_YELLOW, style)
 
-    def blue(self, obj, push = False):
+    def blue(self, obj, push = False, style = STYLE_NONE):
         if push:
-            return self.push(obj, Log.COLOR_BLUE)
+            return self.push(obj, Log.COLOR_BLUE, style)
         else:
-            return self.wrap(obj, Log.COLOR_BLUE)
+            return self.wrap(obj, Log.COLOR_BLUE, style)
 
-    def magenta(self, obj, push = False):
+    def magenta(self, obj, push = False, style = STYLE_NONE):
         if push:
-            return self.push(obj, Log.COLOR_MAGENTA)
+            return self.push(obj, Log.COLOR_MAGENTA, style)
         else:
-            return self.wrap(obj, Log.COLOR_MAGENTA)
+            return self.wrap(obj, Log.COLOR_MAGENTA, style)
 
 class CrossCompiler:
     def __init__(self, arch):
