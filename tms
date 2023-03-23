@@ -949,7 +949,7 @@ class CommandPush(Command):
                             action = 'append', type = str,
                             help = 'list of targets for which to push')
         parser.add_argument('-v', '--reroll-count', dest = 'iteration',
-                            action = 'store', type = int,
+                            action = 'store', type = int, default = 1,
                             help = 'mark the pull-requests as the <n>-th iteration')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
                             help = 'names of branches to push')
@@ -980,7 +980,7 @@ class CommandRequestPull(Command):
                             action = 'append', type = str,
                             help = 'list of targets for which to request-pull')
         parser.add_argument('-v', '--reroll-count', dest = 'iteration',
-                            action = 'store', type = int,
+                            action = 'store', type = int, default = 1,
                             help = 'mark the pull-requests as the <n>-th iteration')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
                             help = 'names of branches to tag')
@@ -1013,7 +1013,7 @@ class CommandTag(Command):
                             action = 'append', type = str,
                             help = 'list of targets for which to tag')
         parser.add_argument('-v', '--reroll-count', dest = 'iteration',
-                            action = 'store', type = int,
+                            action = 'store', type = int, default = 1,
                             help = 'mark the pull-requests as the <n>-th iteration')
         parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
                             help = 'names of branches to tag')
