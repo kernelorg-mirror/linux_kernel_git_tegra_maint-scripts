@@ -524,16 +524,20 @@ class Branch:
         branches.append('%s' % self.name)
         branches.extend(tags)
 
-        (status, stdout, stderr) = repo.git.push(remote, branches,
-                                                 with_extended_output = True,
-                                                 with_exceptions = False,
-                                                 dry_run = dry_run,
-                                                 force = True)
+        for branch in branches:
+            print('  pushing %s...' % branch)
 
-        print(stderr)
+        if not dry_run:
+            (status, stdout, stderr) = repo.git.push(remote, branches,
+                                                     with_extended_output = True,
+                                                     with_exceptions = False,
+                                                     dry_run = dry_run,
+                                                     force = True)
 
-        if status != 0:
-            sys.exit(status)
+            print(stderr)
+
+            if status != 0:
+                sys.exit(status)
 
     def request_pull(self, repo, targets = None, iteration = 1, dry_run = False):
         git_config = repo.config_reader()
@@ -578,8 +582,14 @@ class Branch:
 
                 tag_name = '%s%s' % (prefix, branch.name.replace('/', '-'))
                 tag = '%s%s' % (tag_name, suffix)
-                subject = repo.tags[tag].tag.message.splitlines()[0]
 
+                print('  requesting pull for %s based on %s' % (tag, base))
+
+                # abort early for dry-run
+                if dry_run:
+                    return
+
+                subject = repo.tags[tag].tag.message.splitlines()[0]
                 firstname = author.split()[0]
                 to = ', '.join(target.to)
                 cc = ', '.join(target.cc)
@@ -613,8 +623,8 @@ class Branch:
                     content  = 'Hi,\n'
                     content += '\n'
 
-                pull_request = repo.git.request_pull(branch.branches[0].name,
-                                                     branch.remote.pull, tag)
+                pull_request = repo.git.request_pull(base, branch.remote.pull,
+                                                     tag)
                 separator = False
                 prefix = ''
 
@@ -665,10 +675,11 @@ class Branch:
                 # gitpython will always redirect the stdout to a PIPE and the
                 # $EDITOR won't be able to display anything on screen in that
                 # case so call git manually for signed tags.
-                res = subprocess.call([repo.git.GIT_PYTHON_GIT_EXECUTABLE,
-                                       'tag', '--sign', tag, branch.name])
-                if res != 0:
-                    break
+                if not dry_run:
+                    res = subprocess.call([repo.git.GIT_PYTHON_GIT_EXECUTABLE,
+                                           'tag', '--sign', tag, branch.name])
+                    if res != 0:
+                        break
 
     def dump(self, indent = 0, output = sys.stdout):
         prefix = ' ' * indent
