@@ -569,7 +569,7 @@ class Branch:
             count = len(branches)
 
             for index, branch in enumerate(branches, 1):
-                base = branch.branches[0].name
+                base = branch.branches[-1].name
                 prefix = branch.target.prefix
                 suffix = ''
 
