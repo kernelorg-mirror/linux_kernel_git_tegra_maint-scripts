@@ -79,7 +79,7 @@ branches:
   for-next:
     remote: tegra
     dependencies:
-      v6.4-rc1:
+      v6.5-rc1:
         remote: origin
 
       #for-6.4/arm/core:
@@ -89,19 +89,20 @@ branches:
       #    v6.3-rc1:
       #      remote: origin
 
-      for-6.5/soc:
+      for-6.6/soc:
         remote: tegra
         target: arm-soc
+        merged: true
         dependencies:
-          v6.4-rc1:
+          v6.5-rc1:
             remote: origin
 
-      for-6.5/firmware:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v6.4-rc1:
-            remote: origin
+      #for-6.5/firmware:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    v6.4-rc1:
+      #      remote: origin
 
       #for-6.2/clk:
       #  remote: tegra
@@ -113,39 +114,43 @@ branches:
       #    for-6.2/firmware:
       #      remote: tegra
 
-      for-6.5/dt-bindings:
+      for-6.6/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
-          v6.4-rc1:
+          v6.5-rc1:
             remote: origin
 
-      for-6.5/memory:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v6.4-rc1:
-            remote: origin
-
-          for-6.5/dt-bindings:
+          tegra-for-6.6-dt-bindings:
             remote: tegra
 
-      for-6.5/pci:
-        remote: tegra
-        target: arm-soc
-        dependencies:
-          v6.4-rc1:
-            remote: origin
-
-          for-6.5/memory:
-            remote: tegra
-
-      #for-6.4/arm/dt:
+      #for-6.5/memory:
       #  remote: tegra
       #  target: arm-soc
       #  dependencies:
-      #    v6.3-rc1:
+      #    v6.4-rc1:
       #      remote: origin
+      #
+      #    for-6.5/dt-bindings:
+      #      remote: tegra
+
+      #for-6.5/pci:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    v6.4-rc1:
+      #      remote: origin
+      #
+      #    for-6.5/memory:
+      #      remote: tegra
+
+      for-6.6/arm/dt:
+        remote: tegra
+        target: arm-soc
+        merged: true
+        dependencies:
+          v6.5-rc1:
+            remote: origin
 
       #for-5.20/arm/defconfig:
       #  remote: tegra
@@ -154,14 +159,14 @@ branches:
       #    v5.19-rc1:
       #      remote: origin
 
-      for-6.5/arm64/dt:
+      for-6.6/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v6.4-rc1:
+          v6.5-rc1:
             remote: origin
 
-          for-6.5/dt-bindings:
+          tegra-for-6.6-arm64-dt:
             remote: tegra
 
       #for-6.4/arm64/defconfig:
