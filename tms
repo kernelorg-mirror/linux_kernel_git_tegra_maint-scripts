@@ -491,7 +491,7 @@ class Branch:
 
             if not dry_run:
                 message = 'Merge branch %s into %s' % (branch.name, self.name)
-                repo.git.merge(branch.name, m = message, no_ff = True)
+                repo.git.merge(branch.name, m = message, no_ff = True, signoff = True)
 
     def push(self, repo, push_tags = False, targets = None, iteration = 1, dry_run = False):
         if not self.remote:
