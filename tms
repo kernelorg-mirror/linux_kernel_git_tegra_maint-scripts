@@ -568,89 +568,98 @@ class Branch:
                           config.get('user', 'email'))
 
             author = email.utils.formataddr(author)
+            releases = {}
 
-            count = len(branches)
-
-            for index, branch in enumerate(branches, 1):
-                base = branch.branches[-1].name
-                prefix = branch.target.prefix
-                suffix = ''
-
-                if iteration > 1:
-                    suffix = '-v%u' % iteration
-
+            for branch in branches:
                 release = branch.name.split('/')[0]
+
+                if release not in releases:
+                    releases[release] = []
+
+                releases[release].append(branch)
+
+            for release, branches in releases.items():
+                count = len(branches)
+
                 path = os.path.join('pull-request/%s/%s' % (release, target))
                 os.makedirs(path, exist_ok = True)
 
-                tag_name = '%s%s' % (prefix, branch.name.replace('/', '-'))
-                tag = '%s%s' % (tag_name, suffix)
-
-                print('  requesting pull for %s based on %s' % (tag, base))
-
-                # abort early for dry-run
-                if dry_run:
-                    return
-
-                subject = repo.tags[tag].tag.message.splitlines()[0]
-                firstname = author.split()[0]
-                to = ', '.join(target.to)
-                cc = ', '.join(target.cc)
-
-                if count > 1:
-                    # make [GIT PULL index/count] look pretty
-                    width = math.ceil(math.log10(count + 1))
+                for index, branch in enumerate(branches, 1):
+                    base = branch.branches[-1].name
+                    prefix = branch.target.prefix
+                    suffix = ''
 
                     if iteration > 1:
-                        subject = '[GIT PULL v%u %0*u/%0*u] %s' % (iteration, width, index,
-                                                                   width, count, subject)
+                        suffix = '-v%u' % iteration
+
+                    tag_name = '%s%s' % (prefix, branch.name.replace('/', '-'))
+                    tag = '%s%s' % (tag_name, suffix)
+
+                    print('  requesting pull for %s based on %s' % (tag, base))
+
+                    # abort early for dry-run
+                    if dry_run:
+                        continue
+
+                    subject = repo.tags[tag].tag.message.splitlines()[0]
+                    firstname = author.split()[0]
+                    to = ', '.join(target.to)
+                    cc = ', '.join(target.cc)
+
+                    if count > 1:
+                        # make [GIT PULL index/count] look pretty
+                        width = math.ceil(math.log10(count + 1))
+
+                        if iteration > 1:
+                            subject = '[GIT PULL v%u %0*u/%0*u] %s' % (iteration, width, index,
+                                                                       width, count, subject)
+                        else:
+                            subject = '[GIT PULL %0*u/%0*u] %s' % (width, index, width,
+                                                                   count, subject)
                     else:
-                        subject = '[GIT PULL %0*u/%0*u] %s' % (width, index, width,
-                                                               count, subject)
-                else:
+                        if iteration > 1:
+                            subject = '[GIT PULL v%u] %s' % (iteration, subject)
+                        else:
+                            subject = '[GIT PULL] %s' % subject
+
+                    message = email.message.EmailMessage()
+                    message['From'] = author
+                    message['To'] = to
+                    message['Cc'] = cc
+                    message['Subject'] = subject
+
+                    if target.addressee:
+                        content  = 'Hi %s,\n' % target.addressee
+                        content += '\n'
+                    else:
+                        content  = 'Hi,\n'
+                        content += '\n'
+
+                    pull_request = repo.git.request_pull(base, branch.remote.pull,
+                                                         tag)
+                    separator = False
+                    prefix = ''
+
+                    for line in pull_request.splitlines():
+                        if line == '-' * 64 and not separator:
+                            content += '%sThanks,' % prefix
+                            content += '%s%s\n' % (prefix, firstname)
+                            separator = True
+
+                        content += '%s%s' % (prefix, line)
+                        prefix = '\n'
+
+                    message.set_content(content)
+
                     if iteration > 1:
-                        subject = '[GIT PULL v%u] %s' % (iteration, subject)
+                        filename = os.path.join(path, 'v%u-%04u-%s' % (iteration, index, tag_name))
                     else:
-                        subject = '[GIT PULL] %s' % subject
+                        filename = os.path.join(path, '%04u-%s' % (index, tag_name))
 
-                message = email.message.EmailMessage()
-                message['From'] = author
-                message['To'] = to
-                message['Cc'] = cc
-                message['Subject'] = subject
+                    print('writing message to %s' % filename)
 
-                if target.addressee:
-                    content  = 'Hi %s,\n' % target.addressee
-                    content += '\n'
-                else:
-                    content  = 'Hi,\n'
-                    content += '\n'
-
-                pull_request = repo.git.request_pull(base, branch.remote.pull,
-                                                     tag)
-                separator = False
-                prefix = ''
-
-                for line in pull_request.splitlines():
-                    if line == '-' * 64 and not separator:
-                        content += '%sThanks,' % prefix
-                        content += '%s%s\n' % (prefix, firstname)
-                        separator = True
-
-                    content += '%s%s' % (prefix, line)
-                    prefix = '\n'
-
-                message.set_content(content)
-
-                if iteration > 1:
-                    filename = os.path.join(path, 'v%u-%04u-%s' % (iteration, index, tag_name))
-                else:
-                    filename = os.path.join(path, '%04u-%s' % (index, tag_name))
-
-                print('writing message to %s' % filename)
-
-                with io.open(filename, 'w') as output:
-                    print(message, file = output, end = '')
+                    with io.open(filename, 'w') as output:
+                        print(message, file = output, end = '')
 
     def tag(self, repo, prefix, targets = None, branches = None, iteration = 1, dry_run = False):
         for branch in self.branches:
