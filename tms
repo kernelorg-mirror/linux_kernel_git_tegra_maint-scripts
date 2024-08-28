@@ -416,12 +416,12 @@ class Branch:
             key, value = map(lambda x: x.strip(), trailer.split(':', 1))
 
             if key == 'Fixes':
-                match = re.match('([0-9a-f]+) \("(.*)"\)', value)
+                match = re.match(r'([0-9a-f]+) \("(.*)"\)', value)
                 ref, subject = match.group(1, 2)
 
                 branches = repo.git.branch('--contains', ref)
                 for branch in branches.splitlines():
-                    match = re.match('\*?\W+(.*)', branch)
+                    match = re.match(r'\*?\W+(.*)', branch)
                     if self.name == match.group(1):
                         break
                 else:
