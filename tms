@@ -501,6 +501,43 @@ class Branch:
         branches = []
         tags = []
 
+        # first force-push (with no verification) the base of each branch to
+        # avoid running git hooks on the entire base
+        for branch in self.branches:
+            if branch.target and not branch.merged:
+                if targets and branch.target.name not in targets:
+                    continue
+            else:
+                continue
+
+            if len(branch.branches) > 0:
+                base = branch.branches[0]
+            else:
+                base = None
+
+            if base:
+                branches.append('%s:%s' % (base, branch.name))
+
+        base = branch.branches[0]
+        branches.append('%s^{commit}:%s' % (base, self.name))
+
+        if not dry_run and branches:
+            (status, stdout, stderr) = repo.git.push(remote, branches,
+                                                     with_extended_output = True,
+                                                     with_exceptions = False,
+                                                     no_verify = True,
+                                                     dry_run = dry_run,
+                                                     force = True)
+
+            print(stdout);
+            print(stderr)
+
+            if status != 0:
+                sys.exit(status)
+
+        # now push the new contents to the remote
+        branches = []
+
         for branch in self.branches:
             if branch.target and not branch.merged:
                 if targets and branch.target.name not in targets:
@@ -534,6 +571,7 @@ class Branch:
                                                      dry_run = dry_run,
                                                      force = True)
 
+            print(stdout);
             print(stderr)
 
             if status != 0:
