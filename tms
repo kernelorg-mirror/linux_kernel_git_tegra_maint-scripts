@@ -516,10 +516,12 @@ class Branch:
                 base = None
 
             if base:
-                branches.append('%s:%s' % (base, branch.name))
+                branches.append('%s^{commit}:refs/heads/%s' % (base, branch.name))
 
         base = branch.branches[0]
-        branches.append('%s^{commit}:%s' % (base, self.name))
+        branches.append('%s^{commit}:refs/heads/%s' % (base, self.name))
+
+        print('pushing branches:', branches)
 
         if not dry_run and branches:
             (status, stdout, stderr) = repo.git.push(remote, branches,
@@ -560,6 +562,8 @@ class Branch:
 
         branches.append('%s' % self.name)
         branches.extend(tags)
+
+        print('pushing branches:', branches)
 
         for branch in branches:
             print('  pushing %s...' % branch)
