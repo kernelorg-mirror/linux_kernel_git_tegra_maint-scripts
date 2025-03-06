@@ -89,12 +89,12 @@ branches:
       #    v6.3-rc1:
       #      remote: origin
 
-      #for-6.12/soc:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v6.11-rc1:
-      #      remote: origin
+      for-6.14/soc:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v6.13-rc1:
+            remote: origin
 
       #for-6.13/firmware:
       #  remote: tegra
@@ -161,12 +161,12 @@ branches:
       #    v5.19-rc1:
       #      remote: origin
 
-      #for-6.13/arm64/dt:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v6.12-rc1:
-      #      remote: origin
+      for-6.14/arm64/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v6.13-rc1:
+            remote: origin
 
       #for-6.12/arm64/defconfig:
       #  remote: tegra
