@@ -253,8 +253,8 @@ class Branch:
     def __str__(self):
         return self.name
 
-    def build(self, repo, build, source, output, jobs, log, verbose = False, checks = 0,
-              warnings = 0):
+    def build(self, repo, build, source, output, jobs, targets, log,
+              verbose = False, checks = 0, warnings = 0):
         arch, config = build.name.split('/')
         build_log = os.path.join(output, 'build.log')
         extra_args = []
@@ -316,7 +316,11 @@ class Branch:
             if complete.returncode != 0:
                 raise fragile.Break
 
-            cmd = ['make', *extra_args, '-j%u' % args.jobs ]
+            cmd = ['make', *extra_args, '-j%u' % args.jobs, *args.targets ]
+
+            if verbose:
+                print('  command:', cmd)
+
             complete = subprocess.run(cmd, env = env, stdout = fobj,
                                       stderr = subprocess.STDOUT)
             if complete.returncode != 0:
@@ -341,7 +345,11 @@ class Branch:
             if complete.returncode != 0:
                 raise fragile.Break
 
-            cmd = ['make', *extra_args, '-j%u' % args.jobs ]
+            cmd = ['make', *extra_args, '-j%u' % args.jobs, *args.targets ]
+
+            if verbose:
+                print('  command:', cmd)
+
             complete = subprocess.run(cmd, env = env, stdout = fobj,
                                       stderr = subprocess.STDOUT)
             if complete.returncode != 0:
@@ -876,7 +884,7 @@ class CommandBuild(Command):
     @classmethod
     def setup(cls, parser):
         super().setup(parser)
-        parser.add_argument('branches', metavar = 'BRANCH', nargs = '*',
+        parser.add_argument('-b', '--branches', nargs = '*', default = [],
                             help = 'names of branches to build')
         parser.add_argument('-c', '--color', action = 'store_true',
                             default = True)
@@ -892,6 +900,8 @@ class CommandBuild(Command):
                             help = 'increase verbosity')
         parser.add_argument('-w', '--worktree', help = 'worktree directory')
         parser.add_argument('-W', '--warnings', action = 'count', help = 'enable extra warnings')
+        parser.add_argument('targets', metavar = 'TARGET', nargs = '*',
+                            help = 'names of targets to build')
 
     @classmethod
     def run(cls, args):
@@ -936,8 +946,9 @@ class CommandBuild(Command):
                 if args.branches and branch.name not in args.branches:
                     continue
 
-                branch.build(repo, build, worktree, branch_directory, args.jobs, log,
-                             args.verbose, checks = args.checks, warnings = args.warnings)
+                branch.build(repo, build, worktree, branch_directory,
+                             args.jobs, args.targets, log, args.verbose,
+                             checks = args.checks, warnings = args.warnings)
 
         if worktree and not args.keep:
             repo = git.Repo('.')
