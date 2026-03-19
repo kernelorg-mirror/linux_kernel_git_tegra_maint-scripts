@@ -92,6 +92,7 @@ branches:
       for-6.20/dt-bindings:
         remote: tegra
         target: arm-soc
+        merged: true
         dependencies:
           v6.19-rc1:
             remote: origin
@@ -99,6 +100,7 @@ branches:
       for-6.20/clk:
         remote: tegra
         target: clk
+        merged: true
         dependencies:
           v6.19-rc1:
             remote: origin
@@ -113,9 +115,17 @@ branches:
       for-6.20/soc:
         remote: tegra
         target: arm-soc
+        merged: true
         dependencies:
           v6.19-rc1:
             remote: origin
+
+      for-6.20/soc-fixes:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          for-6.20/soc:
+            remote: tegra
 
       #for-6.17/firmware:
       #  remote: tegra
@@ -144,6 +154,7 @@ branches:
       for-6.20/arm/dt:
         remote: tegra
         target: arm-soc
+        merged: true
         dependencies:
           v6.19-rc1:
             remote: origin
@@ -158,9 +169,17 @@ branches:
       for-6.20/arm64/dt:
         remote: tegra
         target: arm-soc
+        merged: true
         dependencies:
           v6.19-rc1:
             remote: origin
+
+      for-6.20/arm64/dt-fixes:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          for-6.20/arm64/dt:
+            remote: tegra
 
       #for-6.19/arm64/defconfig:
       #  remote: tegra
