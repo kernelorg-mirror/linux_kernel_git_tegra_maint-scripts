@@ -530,7 +530,8 @@ class Branch:
             if base:
                 branches.append('%s^{commit}:refs/heads/%s' % (base, branch.name))
 
-        base = branch.branches[0]
+        base = self.branches[0]
+
         branches.append('%s^{commit}:refs/heads/%s' % (base, self.name))
 
         print('pushing branches:', branches)
