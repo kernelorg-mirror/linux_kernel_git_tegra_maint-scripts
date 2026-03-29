@@ -73,13 +73,23 @@ targets:
       - linux-kernel@vger.kernel.org
       - linux-tegra@vger.kernel.org
     addressee: Krzysztof
+  pci:
+    to:
+      - Lorenzo Pieralisi <lpieralisi@kernel.org>
+      - Bjorn Helgaas <bhelgaas@google.com>
+    cc:
+      #- Krzysztof Wilczyński <kwilczynski@kernel.org>
+      #- Manivannan Sadhasivam <mani@kernel.org>
+      - linux-pci@vger.kernel.org
+      - linux-tegra@vger.kernel.org
+    addressee: Lorenzo, Bjorn
 
 # local branches
 branches:
   for-next:
     remote: tegra
     dependencies:
-      v6.19-rc1:
+      v7.0-rc1:
         remote: origin
 
       #for-6.19/syscore:
@@ -89,21 +99,19 @@ branches:
       #    v6.18-rc1:
       #      remote: origin
 
-      for-6.20/dt-bindings:
+      for-7.1/dt-bindings:
         remote: tegra
         target: arm-soc
-        merged: true
         dependencies:
-          v6.19-rc1:
+          v7.0-rc1:
             remote: origin
 
-      for-6.20/clk:
-        remote: tegra
-        target: clk
-        merged: true
-        dependencies:
-          v6.19-rc1:
-            remote: origin
+      #for-6.20/clk:
+      #  remote: tegra
+      #  target: clk
+      #  dependencies:
+      #    v6.19-rc1:
+      #      remote: origin
 
       #for-6.19/core:
       #  remote: tegra
@@ -112,27 +120,19 @@ branches:
       #    v6.18-rc1:
       #      remote: origin
 
-      for-6.20/soc:
+      for-7.1/soc:
         remote: tegra
         target: arm-soc
-        merged: true
         dependencies:
-          v6.19-rc1:
+          v7.0-rc1:
             remote: origin
 
-      for-6.20/soc-fixes:
+      for-7.1/firmware:
         remote: tegra
         target: arm-soc
         dependencies:
-          for-6.20/soc:
-            remote: tegra
-
-      #for-6.17/firmware:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v6.17-rc1:
-      #      remote: origin
+          v7.0-rc1:
+            remote: origin
 
       #for-6.17/memory:
       #  remote: tegra
@@ -141,58 +141,57 @@ branches:
       #    v6.16-rc1:
       #      remote: origin
 
-      #for-6.5/pci:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v6.4-rc1:
-      #      remote: origin
-      #
-      #    for-6.5/memory:
-      #      remote: tegra
-
-      for-6.20/arm/dt:
+      for-7.1/arm/dt:
         remote: tegra
         target: arm-soc
-        merged: true
         dependencies:
-          v6.19-rc1:
+          v7.0-rc1:
             remote: origin
 
-      #for-6.19/arm/defconfig:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v6.18-rc1:
-      #      remote: origin
-
-      for-6.20/arm64/dt:
+      for-7.1/arm/defconfig:
         remote: tegra
         target: arm-soc
-        merged: true
         dependencies:
-          v6.19-rc1:
+          v7.0-rc1:
             remote: origin
 
-      for-6.20/arm64/dt-fixes:
+      for-7.1/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          for-6.20/arm64/dt:
-            remote: tegra
+          v7.0-rc1:
+            remote: origin
 
-      #for-6.19/arm64/defconfig:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v6.18-rc1:
-      #      remote: origin
+      for-7.1/arm64/defconfig:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v7.0-rc1:
+            remote: origin
 
 #  for-5.7/work:
 #    remote: github
 #    dependencies:
 #      master:
 #        remote: next
+
+  #
+  # extra branches not feeding into for-next
+  #
+
+  for-7.1/pci:
+    remote: tegra
+    target: pci
+    manual: true
+    dependencies:
+      v7.0-rc1:
+        remote: origin
+
+      for-7.1/dt-bindings:
+        remote: tegra
+
+      for-7.1/firmware:
+        remote: tegra
 
 builds:
   arm64:
