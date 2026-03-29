@@ -230,8 +230,12 @@ class Branch:
 
         self.remote = None
         self.target = None
+        self.manual = False
         self.merged = False
         self.branches = []
+
+        if 'manual' in data:
+            self.manual = data['manual']
 
         if 'merged' in data:
             self.merged = data['merged']
@@ -712,7 +716,14 @@ class Branch:
                         print(message, file = output, end = '')
 
     def tag(self, repo, prefix, targets = None, branches = None, iteration = 1, dry_run = False):
-        for branch in self.branches:
+        # for manually maintained branches, only tag the top-level branch and
+        # assume all others have already been tagged previously
+        if not self.manual:
+            all_branches = self.branches
+        else:
+            all_branches = [ self ]
+
+        for branch in all_branches:
             if branch.target and not branch.merged:
                 if targets and branch.target.name not in targets:
                     continue
@@ -1008,6 +1019,12 @@ class CommandMerge(Command):
 
         for branch in tree:
             if args.branches and branch.name not in args.branches:
+                continue
+
+            # do not recreate manually maintained branches (i.e. those that
+            # don't have any children or ones that are explicitly marked as
+            # manual)
+            if not branch.branches or branch.manual:
                 continue
 
             print('creating branch %s...' % branch)
