@@ -505,7 +505,7 @@ class Branch:
                 message = 'Merge branch %s into %s' % (branch.name, self.name)
                 repo.git.merge(branch.name, m = message, no_ff = True, signoff = True)
 
-    def push(self, repo, push_tags = False, targets = None, iteration = 1, dry_run = False):
+    def push(self, repo, push_tags = False, prefix = None, targets = None, iteration = 1, dry_run = False):
         if not self.remote:
             raise Exception('cannot push branch %s without remote' % self)
 
@@ -563,14 +563,13 @@ class Branch:
             branches.append('%s' % branch.name)
 
             if push_tags:
-                tag_prefix = branch.target.prefix
+                tag = branch.make_tag(prefix, iteration)
+                if tag:
+                    tags.append('%s' % tag)
 
-                if iteration > 1:
-                    suffix = '-v%u' % iteration
-                else:
-                    suffix = ''
-
-                tag = '%s%s%s' % (tag_prefix, branch.name.replace('/', '-'), suffix)
+        if not targets or (self.target and self.target.name in targets):
+            tag = self.make_tag(prefix, iteration)
+            if tag:
                 tags.append('%s' % tag)
 
         branches.append('%s' % self.name)
@@ -594,7 +593,7 @@ class Branch:
             if status != 0:
                 sys.exit(status)
 
-    def request_pull(self, repo, targets = None, branches = None, iteration = 1, dry_run = False):
+    def request_pull(self, repo, prefix = None, targets = None, branches = None, iteration = 1, dry_run = False):
         git_config = repo.config_reader()
         config = read_dotconfig()
         buckets = {}
@@ -611,6 +610,12 @@ class Branch:
                     buckets[branch.target] = [ ]
 
                 buckets[branch.target].append(branch)
+
+        if self.manual:
+            if self.target and self.target not in buckets:
+                buckets[self.target] = []
+
+            buckets[self.target].append(self)
 
         for target, branches in buckets.items():
             print('target: %s' % target)
@@ -640,15 +645,8 @@ class Branch:
                 os.makedirs(path, exist_ok = True)
 
                 for index, branch in enumerate(branches, 1):
-                    base = branch.branches[-1].name
-                    prefix = branch.target.prefix
-                    suffix = ''
-
-                    if iteration > 1:
-                        suffix = '-v%u' % iteration
-
-                    tag_name = '%s%s' % (prefix, branch.name.replace('/', '-'))
-                    tag = '%s%s' % (tag_name, suffix)
+                    base = branch.branches[0].name
+                    tag = branch.make_tag(prefix, iteration)
 
                     print('  requesting pull for %s based on %s' % (tag, base))
 
@@ -716,6 +714,22 @@ class Branch:
                     with io.open(filename, 'w') as output:
                         print(message, file = output, end = '')
 
+    def make_tag(self, prefix = None, iteration = 1):
+        if self.target:
+            if prefix is None:
+                tag_prefix = self.target.prefix
+            else:
+                tag_prefix = prefix
+        else:
+            return None
+
+        if iteration > 1:
+            suffix = '-v%u' % iteration
+        else:
+            suffix = ''
+
+        return '%s%s%s' % (tag_prefix, self.name.replace('/', '-'), suffix)
+
     def tag(self, repo, prefix, targets = None, branches = None, iteration = 1, dry_run = False):
         # for manually maintained branches, only tag the top-level branch and
         # assume all others have already been tagged previously
@@ -732,17 +746,7 @@ class Branch:
                 if branches and branch.name not in branches:
                     continue
 
-                if prefix is None:
-                    tag_prefix = branch.target.prefix
-                else:
-                    tag_prefix = prefix
-
-                if iteration > 1:
-                    suffix = '-v%u' % iteration
-                else:
-                    suffix = ''
-
-                tag = '%s%s%s' % (tag_prefix, branch.name.replace('/', '-'), suffix)
+                tag = branch.make_tag(prefix, iteration)
                 print('  tagging %s as %s' % (branch, tag))
 
                 if tag in repo.tags:
@@ -1040,6 +1044,8 @@ class CommandPush(Command):
         super().setup(parser)
         parser.add_argument('-n', '--dry-run', action = 'store_true',
                             help = 'do everything except actually send the updates')
+        parser.add_argument('-p', '--prefix', type = str,
+                            help = 'prefix to prepend to tag names')
         parser.add_argument('--tags', action = 'store_true',
                             help = 'push tags along with branches')
         parser.add_argument('-t', '--target', dest = 'targets',
@@ -1061,8 +1067,9 @@ class CommandPush(Command):
                 continue
 
             print('pushing branch %s...' % branch)
-            branch.push(repo, push_tags = args.tags, targets = args.targets,
-                        iteration = args.iteration, dry_run = args.dry_run)
+            branch.push(repo, push_tags = args.tags, prefix = args.prefix,
+                        targets = args.targets, iteration = args.iteration,
+                        dry_run = args.dry_run)
 
 class CommandRequestPull(Command):
     name = 'request-pull'
@@ -1073,6 +1080,8 @@ class CommandRequestPull(Command):
         super().setup(parser)
         parser.add_argument('-n', '--dry-run', action = 'store_true',
                             help = 'display the actions that would be performed')
+        parser.add_argument('-p', '--prefix', type = str,
+                            help = 'prefix to prepend to tag names')
         parser.add_argument('-t', '--target', dest = 'targets',
                             action = 'append', type = str,
                             help = 'list of targets for which to request-pull')
@@ -1089,8 +1098,9 @@ class CommandRequestPull(Command):
 
         for branch in tree:
             print('request-pull for %s...' % branch)
-            branch.request_pull(repo, targets = args.targets, branches = args.branches,
-                                iteration = args.iteration, dry_run = args.dry_run)
+            branch.request_pull(repo, prefix = args.prefix, targets = args.targets,
+                                branches = args.branches, iteration = args.iteration,
+                                dry_run = args.dry_run)
 
 class CommandTag(Command):
     name = 'tag'
@@ -1119,8 +1129,9 @@ class CommandTag(Command):
 
         for branch in tree:
             print('tagging branch %s...' % branch)
-            branch.tag(repo, args.prefix, targets = args.targets, branches = args.branches,
-                       iteration = args.iteration, dry_run = args.dry_run)
+            branch.tag(repo, prefix = args.prefix, targets = args.targets,
+                       branches = args.branches, iteration = args.iteration,
+                       dry_run = args.dry_run)
 
 commands = [
     CommandBuild,

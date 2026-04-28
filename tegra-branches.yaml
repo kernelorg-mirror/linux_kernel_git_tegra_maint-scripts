@@ -74,6 +74,7 @@ targets:
       - linux-tegra@vger.kernel.org
     addressee: Krzysztof
   pci:
+    tag-prefix: tegra-
     to:
       - Lorenzo Pieralisi <lpieralisi@kernel.org>
       - Bjorn Helgaas <bhelgaas@google.com>
