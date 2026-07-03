@@ -705,9 +705,9 @@ class Branch:
                     message.set_content(content)
 
                     if iteration > 1:
-                        filename = os.path.join(path, 'v%u-%04u-%s' % (iteration, index, tag_name))
+                        filename = os.path.join(path, 'v%u-%04u-%s' % (iteration, index, tag))
                     else:
-                        filename = os.path.join(path, '%04u-%s' % (index, tag_name))
+                        filename = os.path.join(path, '%04u-%s' % (index, tag))
 
                     print('writing message to %s' % filename)
 
