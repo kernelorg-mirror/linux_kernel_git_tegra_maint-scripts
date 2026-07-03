@@ -1097,9 +1097,12 @@ class CommandRequestPull(Command):
         tree = load_tree()
 
         for branch in tree:
+            if args.branches and branch.name not in args.branches:
+                continue
+
             print('request-pull for %s...' % branch)
             branch.request_pull(repo, prefix = args.prefix, targets = args.targets,
-                                branches = args.branches, iteration = args.iteration,
+                                branches = None, iteration = args.iteration,
                                 dry_run = args.dry_run)
 
 class CommandTag(Command):
@@ -1128,9 +1131,12 @@ class CommandTag(Command):
         tree = load_tree()
 
         for branch in tree:
+            if args.branches and branch.name not in args.branches:
+                continue
+
             print('tagging branch %s...' % branch)
             branch.tag(repo, prefix = args.prefix, targets = args.targets,
-                       branches = args.branches, iteration = args.iteration,
+                       branches = None, iteration = args.iteration,
                        dry_run = args.dry_run)
 
 commands = [
