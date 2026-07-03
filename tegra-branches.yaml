@@ -18,7 +18,7 @@ targets:
       - arm@kernel.org
       - soc@kernel.org
     cc:
-      - Thierry Reding <thierry.reding@gmail.com>
+      - Thierry Reding <thierry.reding@kernel.org>
       - Jon Hunter <jonathanh@nvidia.com>
       - linux-tegra@vger.kernel.org
       - linux-arm-kernel@lists.infradead.org
