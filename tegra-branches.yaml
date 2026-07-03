@@ -87,6 +87,33 @@ targets:
 
 # local branches
 branches:
+  fixes:
+    remote: tegra
+    dependencies:
+      v7.1-rc1:
+        remote: origin
+
+      for-7.2/pmc-fixes:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          tegra-for-7.2-pmc:
+            remote: origin
+
+      for-7.2/soc-fixes:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          tegra-for-7.2-soc:
+            remote: origin
+
+      for-7.2/arm64/dt-fixes:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          tegra-for-7.2-arm64-dt:
+            remote: origin
+
   for-next:
     remote: tegra
     dependencies:
