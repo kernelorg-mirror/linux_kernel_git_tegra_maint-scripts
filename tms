@@ -691,16 +691,16 @@ class Branch:
                     pull_request = repo.git.request_pull(base, branch.remote.pull,
                                                          tag)
                     separator = False
-                    prefix = ''
+                    line_prefix = ''
 
                     for line in pull_request.splitlines():
                         if line == '-' * 64 and not separator:
-                            content += '%sThanks,' % prefix
-                            content += '%s%s\n' % (prefix, firstname)
+                            content += '%sThanks,' % line_prefix
+                            content += '%s%s\n' % (line_prefix, firstname)
                             separator = True
 
-                        content += '%s%s' % (prefix, line)
-                        prefix = '\n'
+                        content += '%s%s' % (line_prefix, line)
+                        line_prefix = '\n'
 
                     message.set_content(content)
 
