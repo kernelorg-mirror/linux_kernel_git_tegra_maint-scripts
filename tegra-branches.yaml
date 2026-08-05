@@ -180,7 +180,7 @@ branches:
         remote: tegra
         target: arm-soc
         dependencies:
-          v7.2-rc1:
+          v7.2-rc5:
             remote: origin
 
       #for-7.1/arm64/defconfig:
