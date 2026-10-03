@@ -479,12 +479,12 @@ class Branch:
             print('resetting branch %s to tag %s...' % (self.name, branch.name))
             base = '%s' % branch.name
         else:
-            print('resetting branch %s to %s...' % (self.name, base))
-
             if branch.remote:
                 base = '%s/%s' % (branch.remote.name, branch.name)
             else:
                 base = '%s' % branch.name
+
+            print('resetting branch %s to %s...' % (self.name, base))
 
         if not dry_run:
             repo.git.reset(base, hard = True)
@@ -528,11 +528,21 @@ class Branch:
                 base = None
 
             if base:
-                branches.append('%s^{commit}:refs/heads/%s' % (base, branch.name))
+                if base.remote and base.name not in repo.tags:
+                    base = f'{base.remote.name}/{base.name}'
+                else:
+                    base = f'{base.name}^{{commit}}'
+
+                branches.append('%s:refs/heads/%s' % (base, branch.name))
 
         base = self.branches[0]
 
-        branches.append('%s^{commit}:refs/heads/%s' % (base, self.name))
+        if base.remote and base.name not in repo.tags:
+            base = f'{base.remote.name}/{base.name}'
+        else:
+            base = f'{base.name}^{{commit}}'
+
+        branches.append('%s:refs/heads/%s' % (base, self.name))
 
         print('pushing branches:', branches)
 
