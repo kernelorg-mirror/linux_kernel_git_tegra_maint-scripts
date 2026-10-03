@@ -90,20 +90,27 @@ branches:
   fixes:
     remote: tegra
     dependencies:
-      v7.2-rc5:
+      v7.3-rc1:
         remote: origin
 
-      for-7.2/arm64/dt-fixes:
+      for-7.3/soc-fixes:
         remote: tegra
         target: arm-soc
         dependencies:
-          v7.2-rc5:
+          v7.3-rc1:
+            remote: origin
+
+      for-7.3/arm64/dt-fixes:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v7.3-rc1:
             remote: origin
 
   for-next:
     remote: tegra
     dependencies:
-      v7.2-rc1:
+      v7.3-rc1:
         remote: origin
 
       #for-6.19/syscore:
@@ -113,11 +120,11 @@ branches:
       #    v6.18-rc1:
       #      remote: origin
 
-      for-7.3/dt-bindings:
+      for-7.4/dt-bindings:
         remote: tegra
         target: arm-soc
         dependencies:
-          v7.2-rc1:
+          v7.3-rc1:
             remote: origin
 
       #for-6.20/clk:
@@ -127,18 +134,18 @@ branches:
       #    v6.19-rc1:
       #      remote: origin
 
-      for-7.3/arm/core:
+      for-7.4/arm/core:
         remote: tegra
         target: arm-soc
         dependencies:
-          v7.2-rc1:
+          v7.3-rc1:
             remote: origin
 
-      for-7.3/soc:
+      for-7.4/soc:
         remote: tegra
         target: arm-soc
         dependencies:
-          v7.2-rc1:
+          v7.3-rc1:
             remote: origin
 
       #for-7.2/pmc:
@@ -148,12 +155,12 @@ branches:
       #    v7.1-rc1:
       #      remote: origin
 
-      #for-7.2/firmware:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v7.1-rc1:
-      #      remote: origin
+      for-7.4/firmware:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v7.3-rc1:
+            remote: origin
 
       #for-6.17/memory:
       #  remote: tegra
@@ -162,12 +169,12 @@ branches:
       #    v6.16-rc1:
       #      remote: origin
 
-      #for-7.2/arm/dt:
-      #  remote: tegra
-      #  target: arm-soc
-      #  dependencies:
-      #    v7.1-rc1:
-      #      remote: origin
+      for-7.4/arm/dt:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v7.3-rc1:
+            remote: origin
 
       #for-7.1/arm/defconfig:
       #  remote: tegra
@@ -176,19 +183,44 @@ branches:
       #    v7.0-rc1:
       #      remote: origin
 
-      for-7.3/arm64/dt:
+      for-7.4/arm64/dt:
         remote: tegra
         target: arm-soc
         dependencies:
-          v7.2-rc5:
+          for-7.4/dt-bindings:
+            remote: tegra
+
+      for-7.4/arm64/defconfig:
+        remote: tegra
+        target: arm-soc
+        dependencies:
+          v7.3-rc1:
             remote: origin
 
-      #for-7.1/arm64/defconfig:
+      #
+      # future branches
+      #
+
+      #for-7.4/dt-bindings:
       #  remote: tegra
       #  target: arm-soc
       #  dependencies:
-      #    v7.0-rc1:
+      #    master:
       #      remote: origin
+
+      #for-7.4/soc:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    for-7.3/soc:
+      #      remote: tegra
+
+      #for-7.4/arm64/dt:
+      #  remote: tegra
+      #  target: arm-soc
+      #  dependencies:
+      #    for-7.3/arm64/dt:
+      #      remote: tegra
 
 #  for-5.7/work:
 #    remote: github
