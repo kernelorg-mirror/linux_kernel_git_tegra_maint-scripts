@@ -1,0 +1,312 @@
+#!/usr/bin/env python3
+
+import click, git, httpx, json, subprocess, time
+import devtools
+
+from pydantic import BaseModel, Field, TypeAdapter
+from typing import Optional
+
+class Project(BaseModel):
+    id: int
+    url: str
+    name: str
+    link_name: str
+    list_id: str
+    list_email: str
+    web_url: Optional[str]
+    scm_url: Optional[str]
+    list_archive_url: Optional[str]
+    list_archive_url_format: Optional[str]
+    commit_url_format: Optional[str]
+
+class Person(BaseModel):
+    id: int
+    url: str
+    name: str
+    email: str
+
+class Series(BaseModel):
+    id: int
+    url: str
+    web_url: str
+    date: str
+    name: Optional[str]
+    version: int
+    mbox: str
+
+    patches: Optional[list[Patch]] = Field(default_factory = list,
+                                           exclude = True)
+
+class Patch(BaseModel):
+    id: int
+    url: str
+    web_url: str
+    project: Project
+    msgid: str
+    list_archive_url: Optional[str]
+    date: str
+    name: str
+    commit_ref: Optional[str]
+    pull_url: Optional[str]
+    state: str
+    archived: bool
+    hash: str
+    submitter: Person
+    delegate: Optional[Person]
+    mbox: str
+    series: list[Series]
+    comments: str
+    check: str
+    checks: str
+    tags: dict
+    related: list
+
+patch_list_adapter = TypeAdapter(list[Patch])
+
+class Auth(httpx.Auth):
+    def __init__(self, token):
+        self.token = token
+
+    def auth_flow(self, request):
+        request.headers['Authorization'] = f'Token {self.token}'
+        yield request
+
+class Client:
+    API_VERSION = '1.2'
+
+    def __init__(self, url = 'https://patchwork.ozlabs.org',
+                 project = 'linux-tegra', timeout = 30.0,
+                 token = None):
+        url = f'{url}/api/{Client.API_VERSION}'
+
+        if token:
+            self.auth = Auth(token)
+        else:
+            self.auth = None
+
+        self.client = httpx.Client(base_url = url, auth = self.auth,
+                                   timeout = timeout)
+        self.project = project
+
+    def get(self, url, **kwargs):
+        params = {
+            'project': self.project
+        } | kwargs
+
+        return self.client.get(url, params = params)
+
+    def patch(self, url, payload: dict = {}, **kwargs):
+        return self.client.patch(url, data = payload)
+
+class Database:
+    def __init__(self, filename, ctx):
+        self.filename = filename
+        self.dirty = False
+
+        with open(filename, 'r') as fobj:
+            patches = patch_list_adapter.validate_json(fobj.read())
+
+        self.patches = {}
+
+        for patch in patches:
+            if patch.id in self.patches:
+                click.echo(f'ERROR: duplicate patch found: {patch.id}: {patch.name}')
+                continue
+
+            self.patches[patch.id] = patch
+
+        self.series = {}
+
+        for patch in self.patches.values():
+            for s in patch.series:
+                if s.id not in self.series:
+                    self.series[s.id] = s
+
+                self.series[s.id].patches.append(patch)
+
+        ctx.call_on_close(self.save)
+
+    def save(self, filename = None):
+        if not self.dirty:
+            return
+
+        if not filename:
+            filename = self.filename
+
+        with open(filename, 'w') as fobj:
+            data = patch_list_adapter.dump_json(list(self.patches.values()))
+            fobj.write(data.decode('utf-8'))
+
+        click.echo(f'{filename} saved')
+        self.dirty = False
+
+    def remove_series(self, id):
+        if not id in self.series:
+            click.echo(f'ERROR: no such series: {id}')
+            return
+
+        series = self.series[id]
+
+        click.echo(f'removing series {series.id}: {series.name}')
+
+        for patch in series.patches:
+            click.echo(f'  patch {patch.id}: {patch.name}')
+            del self.patches[patch.id]
+
+        del self.series[id]
+        self.dirty = True
+
+class ContextObject:
+    def __init__(self):
+        pass
+
+    def patchwork_set_state(self, ids: list[int], state: str):
+        for id in ids:
+            for patch in self.db.series[id].patches:
+                payload = {
+                        'state': state
+                    }
+
+                response = self.client.patch(f'/patches/{patch.id}/', payload)
+                response.raise_for_status()
+                devtools.debug(response.json())
+
+            self.db.remove_series(id)
+
+@click.group
+@click.pass_obj
+def cli(obj):
+    obj.repo = git.Repo('.')
+    obj.config = obj.repo.config_reader()
+
+    if obj.config.has_section('b4'):
+        if obj.config.has_option('b4', 'pw-url'):
+            url = obj.config.get('b4', 'pw-url')
+        else:
+            url = 'https://patchwork.ozlabs.org'
+
+        if obj.config.has_option('b4', 'pw-project'):
+            project = obj.config.get('b4', 'pw-project')
+        else:
+            project = 'linux-tegra'
+
+        if obj.config.has_option('b4', 'pw-key'):
+            token = obj.config.get('b4', 'pw-key')
+        else:
+            token = None
+    else:
+        url = 'https://patchwork.ozlabs.org'
+        project = 'linux-tegra'
+        token = None
+
+    obj.client = Client(url = url, project = project, token = token)
+
+@cli.command
+@click.pass_obj
+def sync(obj):
+    page = 1
+    per_page = 32
+    patches = []
+
+    while True:
+        response = obj.client.get('/patches/', page = page, per_page = per_page, archived = 'false', state = 'new')
+        click.echo(f'received {response.request.url}')
+        response.raise_for_status()
+
+        chunk = response.json()
+        patches.extend(chunk)
+
+        if len(chunk) < per_page:
+            break
+
+        page += 1
+
+    with open('patches.json', 'w') as fobj:
+        fobj.write(json.dumps(patches))
+
+    click.echo(f'downloaded {len(patches)} patches')
+
+@cli.command
+@click.argument('filename', type = click.Path(), default = 'todo.json')
+@click.pass_context
+def todo(ctx, filename):
+    ctx.obj.db = Database(filename, ctx)
+
+    for id, series in ctx.obj.db.series.items():
+        click.echo(f'{id}: {series.name}')
+
+        for patch in series.patches:
+            click.echo(f'        {patch.name}')
+
+@cli.group()
+@click.option('--filename', '-f', type = click.Path(), default = 'todo.json')
+@click.pass_context
+def series(ctx, filename):
+    ctx.obj.db = Database(filename, ctx)
+
+@series.command('apply')
+@click.option('--cherry-pick', '-P', type = str)
+@click.argument('id', type = int)
+@click.pass_obj
+def series_apply(obj, cherry_pick, id):
+    cmd = [ 'b4', 'shazam' ]
+
+    if cherry_pick:
+        cmd.extend([ '-P', cherry_pick ])
+
+    if not id in obj.db.series:
+        raise click.ClickException(f'failed to find series: {id}')
+
+    for patch in obj.db.series[id].patches:
+        msgid = patch.msgid
+        break
+
+    cmd.append(msgid)
+
+    result = subprocess.run(cmd, capture_output = True, text = True)
+
+    if result.returncode != 0:
+        raise click.ClickException(f'failed to apply series: {id}: {result.stderr.strip()}')
+
+    click.echo(result.stdout.strip())
+    click.echo(result.stderr.strip())
+
+@series.command('accepted')
+@click.argument('ids', type = int, nargs = -1, required = True)
+@click.pass_obj
+def series_accepted(obj, ids):
+    obj.patchwork_set_state(ids, 'accepted')
+
+@series.command('rejected')
+@click.argument('ids', type = int, nargs = -1, required = True)
+@click.pass_obj
+def series_rejected(obj, ids):
+    obj.patchwork_set_state(ids, 'rejected')
+
+@series.command('handled-elsewhere')
+@click.argument('ids', type = int, nargs = -1, required = True)
+@click.pass_obj
+def series_handled_elsewhere(obj, ids):
+    obj.patchwork_set_state(ids, 'handled-elsewhere')
+
+@series.command('superseded')
+@click.argument('ids', type = int, nargs = -1, required = True)
+@click.pass_obj
+def series_supersede(obj, ids):
+    obj.patchwork_set_state(ids, 'superseded')
+
+@series.command('not-applicable')
+@click.argument('ids', type = int, nargs = -1, required = True)
+@click.pass_obj
+def series_not_applicable(obj, ids):
+    obj.patchwork_set_state(ids, 'not-applicable')
+
+@series.command('ignore')
+@click.argument('ids', type = int, nargs = -1, required = True)
+@click.pass_obj
+def series_ignore(obj, ids):
+    for id in ids:
+        obj.db.remove_series(id)
+
+if __name__ == '__main__':
+    cli(obj = ContextObject())
